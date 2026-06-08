@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Motorcar APP</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#111;font-size:14px;min-height:100vh}
+button,input,select,textarea{font-family:inherit;font-size:14px}
+.hdr{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.hdr-icon{width:36px;height:36px;background:#E24B4A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:700;color:#fff;line-height:1.2}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-user{background:rgba(255,255,255,.1);border-radius:16px;padding:4px 10px;font-size:11px;color:#fff;white-space:nowrap}
+.btn-logout{background:rgba(226,75,74,.15);border:1px solid rgba(226,75,74,.3);border-radius:8px;padding:5px 10px;font-size:11px;color:#E24B4A;cursor:pointer;white-space:nowrap}
+.tabs{display:flex;background:#1a1a1a;padding:0 12px;border-bottom:2px solid #111}
+.tab{padding:10px 14px;font-size:13px;font-weight:500;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
+.tab.active{color:#fff;border-bottom-color:#E24B4A}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 12px 8px}
+.kpi{background:#fff;border-radius:10px;padding:11px 8px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 1px 3px rgba(0,0,0,.07);cursor:pointer;transition:transform .1s}
+.kpi:active{transform:scale(.96)}
+.kpi-icon{font-size:17px;margin-bottom:2px}
+.kpi-val{font-size:22px;font-weight:800;line-height:1}
+.kpi-lbl{font-size:9px;color:#888;font-weight:600;text-align:center;text-transform:uppercase;letter-spacing:.03em}
+.kpi.red .kpi-val{color:#c0392b}
+.kpi.blue .kpi-val{color:#1565c0}
+.kpi.green .kpi-val{color:#2e7d32}
+.kpi.rf .kpi-val{color:#E24B4A}
+.rf-banner{margin:4px 12px 8px;background:#1a1a1a;border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:1px solid #333;transition:background .12s}
+.rf-banner:active{background:#2a2a2a}
+.rf-txt-title{font-size:14px;font-weight:700;color:#fff}
+.rf-txt-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.rf-btn{background:#E24B4A;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.filter-bar{padding:6px 12px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.fpill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:1.5px solid #ddd;background:#fff;color:#666;cursor:pointer;flex-shrink:0;transition:all .12s}
+.fpill.f-all{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.fpill.f-sin{background:#FFF3E0;color:#e65100;border-color:#FFCC80}
+.fpill.f-ub{background:#E3F2FD;color:#1565c0;border-color:#90CAF9}
+.fpill.f-mo{background:#E8F5E9;color:#2e7d32;border-color:#A5D6A7}
+.fpill.f-de{background:#ECEFF1;color:#546e7a;border-color:#CFD8DC}
+.fpill.f-rf{background:#1a1a1a;color:#E24B4A;border-color:#1a1a1a}
+.search-wrap{padding:4px 12px 10px}
+.search-wrap-inner{position:relative}
+.search-input{width:100%;border:1.5px solid #ddd;border-radius:10px;padding:10px 14px 10px 38px;font-size:16px;background:#fff;color:#111;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.search-input:focus{border-color:#E24B4A}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:15px;pointer-events:none}
+.piece-list{padding:2px 12px 90px}
+.piece-card{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.piece-top{padding:12px 14px 10px;display:flex;align-items:flex-start;gap:10px}
+.piece-mat{font-family:monospace;font-size:13px;font-weight:800;color:#1a1a1a;background:#f5f5f5;padding:3px 7px;border-radius:5px;white-space:nowrap;border:1px solid #e8e8e8}
+.piece-or{font-size:10px;color:#999;margin-top:3px;text-align:center}
+.piece-info{flex:1;min-width:0}
+.piece-desc{font-size:13px;font-weight:700;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.piece-meta{font-size:11px;color:#777;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.piece-badges{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-sin{background:#FFF3E0;color:#e65100}
+.b-ub{background:#E3F2FD;color:#1565c0}
+.b-mo{background:#E8F5E9;color:#2e7d32}
+.b-de{background:#ECEFF1;color:#546e7a}
+.b-rf{background:#1a1a1a;color:#E24B4A}
+.b-loc{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.b-inc{background:#FFEBEE;color:#c62828}
+.piece-acts{padding:8px 12px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #f0f0f0}
+.btn{border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#f5f5f5;color:#444;transition:transform .1s;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn-red{background:#E24B4A;color:#fff;border-color:#E24B4A}
+.btn-dark{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-rf{background:#1a1a1a;color:#E24B4A;border-color:#1a1a1a}
+.btn-blue{background:#E3F2FD;color:#1565c0;border-color:#90CAF9}
+.btn-del{background:#FFEBEE;color:#c62828;border-color:#FFCDD2}
+.btn-warn{background:#FFF8E1;color:#f57f17;border-color:#FFE082}
+.loading{text-align:center;padding:50px 20px;color:#777}
+.spinner{width:30px;height:30px;border:3px solid #eee;border-top-color:#E24B4A;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:50px 20px;color:#888}
+.empty-icon{font-size:44px;margin-bottom:12px}
+.empty-msg{font-size:14px;font-weight:500}
+/* LOGIN */
+.login-screen{min-height:100vh;background:#1a1a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.login-logo{width:76px;height:76px;background:#E24B4A;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#fff;margin-bottom:18px;box-shadow:0 8px 24px rgba(226,75,74,.35)}
+.login-title{color:#fff;font-size:22px;font-weight:800;margin-bottom:4px}
+.login-sub{color:rgba(255,255,255,.35);font-size:13px;margin-bottom:32px}
+.pin-display{height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;min-width:220px}
+.pin-dots-row{display:flex;gap:14px;align-items:center}
+.pdot{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .12s}
+.pdot.on{background:#E24B4A;transform:scale(1.1)}
+.pin-placeholder{color:rgba(255,255,255,.2);font-size:13px}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:252px;margin-bottom:16px}
+.nkey{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;font-size:24px;font-weight:700;cursor:pointer;text-align:center;color:#fff;transition:background .1s;user-select:none;-webkit-user-select:none}
+.nkey:active{background:rgba(255,255,255,.18)}
+.ndel{font-size:18px;color:rgba(255,255,255,.4)}
+.nok{background:#E24B4A;border-color:#E24B4A;font-size:15px;font-weight:800}
+.nok:active{background:#c0392b}
+.login-err{color:#E24B4A;font-size:13px;font-weight:600;min-height:22px;text-align:center}
+/* FORMS */
+.fscreen{min-height:100vh;background:#f0f0f0;display:flex;flex-direction:column}
+.fhdr{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.fback{width:38px;height:38px;background:rgba(255,255,255,.08);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;flex-shrink:0;border:1px solid rgba(255,255,255,.1)}
+.fback:active{background:rgba(255,255,255,.15)}
+.fhdr-title{font-size:15px;font-weight:700;color:#fff;line-height:1.2}
+.fhdr-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fbody{padding:14px 12px;flex:1;overflow-y:auto}
+.fcard{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.fsec{padding:14px}
+.fsec+.fsec{border-top:1px solid #f0f0f0}
+.fsec-lbl{font-size:10px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg{margin-bottom:10px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:12px;font-weight:700;color:#555;margin-bottom:5px}
+.fl span{font-weight:400;color:#aaa}
+.fi{width:100%;border:1.5px solid #ddd;border-radius:9px;padding:11px 12px;font-size:16px;color:#111;background:#fff;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.fi:focus{border-color:#E24B4A}
+.fsel{width:100%;border:1.5px solid #ddd;border-radius:9px;padding:11px 12px;font-size:16px;color:#111;background:#fff;outline:none;-webkit-appearance:none;cursor:pointer}
+.fsel:focus{border-color:#E24B4A}
+.fhint{font-size:11px;color:#999;margin-top:4px}
+.preview-box{background:#f5f5f5;border-radius:9px;padding:11px 14px;font-family:monospace;font-size:16px;font-weight:800;color:#E24B4A;text-align:center;margin-top:10px;border:1px dashed #ddd}
+.ffooter{padding:12px;background:#f0f0f0;border-top:1px solid #e5e5e5;position:sticky;bottom:0;display:flex;gap:8px}
+.fbtn-cancel{background:#fff;color:#666;border:1.5px solid #ddd;border-radius:10px;padding:14px 18px;font-size:15px;font-weight:600;cursor:pointer;flex-shrink:0}
+.fbtn-submit{flex:1;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;cursor:pointer}
+.fbtn-submit:active{transform:scale(.98)}
+.fbtn-red{background:#E24B4A;color:#fff}
+.fbtn-dark{background:#1a1a1a;color:#fff}
+.fbtn-rf{background:#1a1a1a;color:#E24B4A}
+.info-box{background:#E3F2FD;border:1px solid #90CAF9;border-radius:9px;padding:10px 12px;font-size:12px;color:#1565c0;margin-bottom:12px;line-height:1.5}
+.rf-info-box{background:#1a1a1a;border-radius:12px;padding:14px;margin-bottom:12px}
+.rf-info-title{font-size:13px;font-weight:800;color:#E24B4A;margin-bottom:4px}
+.rf-info-sub{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:flex-end}
+.modal-sheet{background:#fff;border-radius:18px 18px 0 0;padding:20px 16px 36px;width:100%;max-height:65vh;overflow-y:auto}
+.modal-drag{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:4px}
+.modal-sub{font-size:13px;color:#777;margin-bottom:16px;line-height:1.5}
+.modal-acts{display:flex;flex-direction:column;gap:8px}
+.mbutton{border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;border:none;transition:transform .1s}
+.mbutton:active{transform:scale(.98)}
+.mbutton-cancel{background:#f5f5f5;color:#666}
+/* TOAST */
+.toast-el{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:24px;font-size:13px;font-weight:700;z-index:300;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.toast-ok{background:#2e7d32;color:#fff}
+.toast-err{background:#c62828;color:#fff}
+.toast-neutral{background:#1a1a1a;color:#fff}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast-el" id="toast"></div>
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxRryThU_ZnqOjqLMDebf7v0NyO7apDcY0v7U-oe0qy9MUOp-Kq8f0eBy8YWQLpVjI/exec';
+const S={view:'login',user:null,taller:'JM',piezas:[],loading:false,filter:'all',search:'',pieza:null,modal:null,pin:''};
+let toastT=null;
+
+function showToast(msg,type='neutral'){
+  const el=document.getElementById('toast');
+  if(!el)return;
+  el.className='toast-el toast-'+type;
+  el.textContent=msg;
+  el.style.opacity='1';
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>{el.style.opacity='0';},2800);
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+async function api(method,params){
+  try{
+    if(method==='GET'){
+      const r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params),{cache:'no-store'});
+      return await r.json();
+    }else{
+      const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(params)});
+      return await r.json();
+    }
+  }catch(e){return{ok:false,error:e.message};}
+}
+
+async function loadPiezas(){
+  S.loading=true; partialRender();
+  const res=await api('GET',{action:'getpiezas',taller:S.taller});
+  S.loading=false;
+  if(res.ok){S.piezas=(res.piezas||[]).map(p=>({...p,_taller:S.taller}));}
+  else showToast('Error cargando datos','err');
+  partialRender();
+}
+async function loadBoth(){
+  S.loading=true; partialRender();
+  const[r1,r2]=await Promise.all([api('GET',{action:'getpiezas',taller:'JM'}),api('GET',{action:'getpiezas',taller:'RM'})]);
+  S.loading=false;
+  S.piezas=[...(r1.ok?(r1.piezas||[]).map(p=>({...p,_taller:'JM'})):[]),...(r2.ok?(r2.piezas||[]).map(p=>({...p,_taller:'RM'})):[])];
+  partialRender();
+}
+
+function normEstado(e){
+  const u=(e||'').toLowerCase().trim();
+  if(u==='sin ubicar'||u==='sinubic'||u==='')return'sin';
+  if(u==='ubicado')return'ub';
+  if(u==='montado')return'mo';
+  if(u==='devuelto')return'de';
+  return'sin';
+}
+function isRF(p){
+  return String(p.almacen||'').toUpperCase().startsWith('Z')||
+    String(p.estanteria||'').toUpperCase()==='Z'||
+    String(p.obs_almacen||'').toUpperCase().includes('RECAMBIO FACIL');
+}
+function pTaller(p){return S.taller==='AMBOS'?(p._taller||p.taller||'JM'):S.taller;}
+
+function kpi(){
+  return{
+    sin:S.piezas.filter(p=>normEstado(p.estado)==='sin'&&!isRF(p)).length,
+    ub:S.piezas.filter(p=>normEstado(p.estado)==='ub'&&!isRF(p)).length,
+    mo:S.piezas.filter(p=>normEstado(p.estado)==='mo').length,
+    de:S.piezas.filter(p=>normEstado(p.estado)==='de').length,
+    rf:S.piezas.filter(p=>isRF(p)).length
+  };
+}
+function baseList(){
+  let list=S.piezas;
+  const q=S.search.trim().toLowerCase();
+  if(q)list=list.filter(p=>['matricula','descripcion','referencia','albaran','marca_modelo','id'].some(k=>String(p[k]||'').toLowerCase().includes(q)));
+  return list;
+}
+function filteredList(){
+  const list=baseList();
+  if(S.filter==='sin')return list.filter(p=>normEstado(p.estado)==='sin'&&!isRF(p));
+  if(S.filter==='ub')return list.filter(p=>normEstado(p.estado)==='ub'&&!isRF(p));
+  if(S.filter==='mo')return list.filter(p=>normEstado(p.estado)==='mo');
+  if(S.filter==='de')return list.filter(p=>normEstado(p.estado)==='de');
+  if(S.filter==='rf')return list.filter(p=>isRF(p));
+  return list;
+}
+function fcount(f){
+  const list=baseList();
+  if(f==='all')return list.length;
+  if(f==='sin')return list.filter(p=>normEstado(p.estado)==='sin'&&!isRF(p)).length;
+  if(f==='ub')return list.filter(p=>normEstado(p.estado)==='ub'&&!isRF(p)).length;
+  if(f==='mo')return list.filter(p=>normEstado(p.estado)==='mo').length;
+  if(f==='de')return list.filter(p=>normEstado(p.estado)==='de').length;
+  if(f==='rf')return list.filter(p=>isRF(p)).length;
+  return list.length;
+}
+
+function badgeEstado(p){
+  if(isRF(p))return'<span class="badge b-rf">⚡ Rec.Fácil</span>';
+  const e=normEstado(p.estado);
+  if(e==='sin')return'<span class="badge b-sin">📦 Sin ubicar</span>';
+  if(e==='ub')return'<span class="badge b-ub">📍 Ubicado</span>';
+  if(e==='mo')return'<span class="badge b-mo">🔧 Montado</span>';
+  if(e==='de')return'<span class="badge b-de">↩ Devuelto</span>';
+  return'';
+}
+function badgeLoc(p){
+  const loc=p.almacen||p.ubicacion||p.estanteria;
+  if(!loc)return'';
+  return`<span class="badge b-loc">📍 ${esc(loc)}</span>`;
+}
+
+// ── RENDER ──
+function render(){
+  const app=document.getElementById('app');
+  if(S.view==='login'){app.innerHTML=renderLogin();setTimeout(bindLogin,0);}
+  else if(S.view==='dashboard'){app.innerHTML=renderDashboard();setTimeout(bindDashboard,0);}
+  else if(S.view==='ubicar'){app.innerHTML=renderUbicar();setTimeout(bindUbicar,0);}
+  else if(S.view==='cambiar'){app.innerHTML=renderCambiar();setTimeout(bindCambiar,0);}
+  else if(S.view==='rfview'){app.innerHTML=renderRFView();setTimeout(bindRFView,0);}
+  else if(S.view==='rfmark'){app.innerHTML=renderRFMark();setTimeout(bindRFMark,0);}
+}
+function partialRender(){
+  if(S.view!=='dashboard'){render();return;}
+  const li=document.getElementById('piece-list');
+  if(li)li.innerHTML=renderPiezasList();
+  const k=kpi();
+  ['sin','ub','mo','de','rf'].forEach(key=>{const el=document.getElementById('kpi-'+key);if(el)el.textContent=k[key];});
+  const rc=document.getElementById('rf-count');if(rc)rc.textContent=k.rf+' en stock';
+  ['all','sin','ub','mo','de','rf'].forEach(f=>{const el=document.querySelector(`.fpill[data-f="${f}"] .fc`);if(el)el.textContent=fcount(f);});
+  setTimeout(bindPieceActions,0);
+}
+
+// ── LOGIN ──
+function renderLogin(){
+  const n=S.pin.length;
+  const dots=n>0?Array.from({length:Math.max(n,4)},(_,i)=>`<div class="pdot${i<n?' on':''}"></div>`).join(''):'';
+  return`<div class="login-screen">
+<div class="login-logo">M</div>
+<div class="login-title">Motorcar APP</div>
+<div class="login-sub">Control de recambios · Grupo Motorcar</div>
+<div class="pin-display">${n>0?`<div class="pin-dots-row">${dots}</div>`:'<span class="pin-placeholder">Introduce tu código PIN</span>'}</div>
+<div class="numpad">
+${[1,2,3,4,5,6,7,8,9,'⌫',0,'✓'].map(k=>`<div class="nkey${k==='⌫'?' ndel':''}${k==='✓'?' nok':''}" data-key="${k}">${k}</div>`).join('')}
+</div>
+<div id="login-err" class="login-err"></div>
+</div>`;}
+
+function bindLogin(){
+  document.querySelectorAll('.nkey').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const k=btn.dataset.key;
+      if(k==='⌫'){S.pin=S.pin.slice(0,-1);updPin();}
+      else if(k==='✓'){await doLogin();}
+      else if(S.pin.length<7){S.pin+=k;updPin();}
+    });
+  });
+}
+function updPin(){
+  const d=document.querySelector('.pin-display');
+  if(!d)return;
+  const n=S.pin.length;
+  d.innerHTML=n>0?`<div class="pin-dots-row">${Array.from({length:Math.max(n,4)},(_,i)=>`<div class="pdot${i<n?' on':''}"></div>`).join('')}</div>`:'<span class="pin-placeholder">Introduce tu código PIN</span>';
+}
+async function doLogin(){
+  if(!S.pin)return;
+  const err=document.getElementById('login-err');
+  if(err)err.textContent='Verificando…';
+  const res=await api('GET',{action:'login',codigo:S.pin});
+  if(res.ok&&res.user){
+    S.user=res.user;S.taller=res.user.taller||'JM';S.pin='';S.view='dashboard';S.filter='all';S.search='';
+    render();
+    if(S.taller==='AMBOS')loadBoth();else loadPiezas();
+  }else{
+    if(err)err.textContent='❌ Código incorrecto';
+    S.pin='';updPin();
+  }
+}
+
+// ── DASHBOARD ──
+function renderDashboard(){
+  const k=kpi();const isCeo=S.user?.nivel<=1;
+  return`<div style="min-height:100vh;background:#f0f0f0;padding-bottom:20px">
+<div class="hdr">
+  <div class="hdr-logo"><div class="hdr-icon">M</div><div><div class="hdr-title">Motorcar APP</div><div class="hdr-sub">${esc(S.user?.nombre)} · ${esc(S.user?.rol)}</div></div></div>
+  <div class="hdr-right"><div class="hdr-user">${S.taller==='AMBOS'?'JM+RM':S.taller}</div><button class="btn-logout" id="btn-logout">Salir</button></div>
+</div>
+${isCeo?`<div class="tabs">
+<div class="tab${S.taller==='JM'?' active':''}" data-taller="JM">Joan Motorcar</div>
+<div class="tab${S.taller==='RM'?' active':''}" data-taller="RM">Raul Motorcar</div>
+<div class="tab${S.taller==='AMBOS'?' active':''}" data-taller="AMBOS">Todos</div>
+</div>`:''}
+<div class="kpi-grid">
+<div class="kpi red" data-filter="sin"><div class="kpi-icon">📦</div><div class="kpi-val" id="kpi-sin">${k.sin}</div><div class="kpi-lbl">Sin ubicar</div></div>
+<div class="kpi blue" data-filter="ub"><div class="kpi-icon">📍</div><div class="kpi-val" id="kpi-ub">${k.ub}</div><div class="kpi-lbl">Ubicadas</div></div>
+<div class="kpi green" data-filter="mo"><div class="kpi-icon">🔧</div><div class="kpi-val" id="kpi-mo">${k.mo}</div><div class="kpi-lbl">Montadas</div></div>
+<div class="kpi rf" data-filter="rf"><div class="kpi-icon">⚡</div><div class="kpi-val" id="kpi-rf">${k.rf}</div><div class="kpi-lbl">Rec.Fácil</div></div>
+</div>
+<div class="rf-banner" id="rf-banner">
+  <div><div class="rf-txt-title">⚡ Recambio Fácil</div><div class="rf-txt-sub" id="rf-count">${k.rf} en stock · piezas para venta directa</div></div>
+  <button class="rf-btn">Ver stock →</button>
+</div>
+<div class="filter-bar">
+<span class="fpill${S.filter==='all'?' f-all':''}" data-f="all">Todas <span class="fc">${fcount('all')}</span></span>
+<span class="fpill${S.filter==='sin'?' f-sin':''}" data-f="sin">Sin ubicar <span class="fc">${fcount('sin')}</span></span>
+<span class="fpill${S.filter==='ub'?' f-ub':''}" data-f="ub">Ubicadas <span class="fc">${fcount('ub')}</span></span>
+<span class="fpill${S.filter==='mo'?' f-mo':''}" data-f="mo">Montadas <span class="fc">${fcount('mo')}</span></span>
+<span class="fpill${S.filter==='de'?' f-de':''}" data-f="de">Devueltas <span class="fc">${fcount('de')}</span></span>
+<span class="fpill${S.filter==='rf'?' f-rf':''}" data-f="rf">⚡ RF <span class="fc">${fcount('rf')}</span></span>
+</div>
+<div class="search-wrap"><div class="search-wrap-inner"><span class="search-icon">🔍</span><input class="search-input" id="search" type="search" placeholder="Matrícula, descripción, referencia…" value="${esc(S.search)}" autocorrect="off" autocapitalize="off" spellcheck="false"></div></div>
+<div class="piece-list" id="piece-list">${renderPiezasList()}</div>
+</div>`;}
+
+function bindDashboard(){
+  document.getElementById('btn-logout')?.addEventListener('click',()=>{S.user=null;S.pin='';S.view='login';render();});
+  document.querySelectorAll('[data-taller]').forEach(el=>{
+    el.addEventListener('click',()=>{S.taller=el.dataset.taller;S.filter='all';if(S.taller==='AMBOS')loadBoth();else loadPiezas();});
+  });
+  document.querySelectorAll('.kpi[data-filter]').forEach(el=>{
+    el.addEventListener('click',()=>{S.filter=el.dataset.filter;updFilters();partialRender();});
+  });
+  document.querySelectorAll('.fpill').forEach(el=>{
+    el.addEventListener('click',()=>{S.filter=el.dataset.f;updFilters();const li=document.getElementById('piece-list');if(li)li.innerHTML=renderPiezasList();setTimeout(bindPieceActions,0);});
+  });
+  document.getElementById('rf-banner')?.addEventListener('click',()=>{S.view='rfview';render();});
+  const si=document.getElementById('search');
+  si?.addEventListener('input',()=>{S.search=si.value;partialRender();});
+  bindPieceActions();
+}
+function updFilters(){
+  document.querySelectorAll('.fpill').forEach(el=>{
+    const f=el.dataset.f;
+    const map={all:'f-all',sin:'f-sin',ub:'f-ub',mo:'f-mo',de:'f-de',rf:'f-rf'};
+    el.className='fpill'+(f===S.filter?' '+map[f]:'');
+  });
+}
+
+function renderPiezasList(){
+  if(S.loading)return'<div class="loading"><div class="spinner"></div>Cargando piezas…</div>';
+  const list=filteredList();
+  if(!list.length)return'<div class="empty"><div class="empty-icon">📭</div><div class="empty-msg">No hay piezas</div></div>';
+  return list.map(p=>renderCard(p)).join('');
+}
+function renderCard(p){
+  const est=normEstado(p.estado);const rf=isRF(p);
+  const canDel=S.user?.nivel<=2;const canInc=S.user?.nivel<=3;
+  let acts='';
+  if(!rf&&est==='sin'){acts+=`<button class="btn btn-red" data-a="ubicar" data-row="${p._row}">📦 Ubicar</button><button class="btn btn-rf" data-a="rfmark" data-row="${p._row}">⚡ Rec.Fácil</button>`;}
+  if(!rf&&est==='ub'){acts+=`<button class="btn btn-blue" data-a="cambiar" data-row="${p._row}">📍 Mover</button><button class="btn btn-dark" data-a="montar" data-row="${p._row}">🔧 Montar</button><button class="btn" data-a="devolver" data-row="${p._row}">↩ Devolver</button>`;}
+  if(rf){acts+=`<button class="btn btn-blue" data-a="cambiar" data-row="${p._row}">📍 Mover</button><button class="btn btn-dark" data-a="montar" data-row="${p._row}">🔧 Montar</button>`;}
+  if(est==='mo'){acts+=`<button class="btn" data-a="devolver" data-row="${p._row}">↩ Devolver</button>`;}
+  if(canInc&&est!=='de'){acts+=`<button class="btn btn-warn" data-a="incidencia" data-row="${p._row}">⚠ Incidencia</button>`;}
+  if(canDel){acts+=`<button class="btn btn-del" data-a="borrar" data-row="${p._row}">🗑 Borrar</button>`;}
+  const tallTag=S.taller==='AMBOS'?`<span class="badge" style="background:#EDE7F6;color:#4527A0;font-size:10px">${pTaller(p)}</span>`:'';
+  return`<div class="piece-card">
+<div class="piece-top">
+<div style="flex-shrink:0;text-align:center"><div class="piece-mat">${esc(p.matricula||'—')}</div>${p.or?`<div class="piece-or">OR ${esc(p.or)}</div>`:''}</div>
+<div class="piece-info">
+<div class="piece-desc">${esc(p.descripcion||'Sin descripción')}</div>
+<div class="piece-meta">${esc([p.marca_modelo,p.proveedor].filter(Boolean).join(' · '))}</div>
+<div class="piece-badges">${badgeEstado(p)}${badgeLoc(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">⚠ ${esc(p.incidencia)}</span>`:''}</div>
+</div></div>
+${acts?`<div class="piece-acts">${acts}</div>`:''}
+</div>`;}
+
+function bindPieceActions(){
+  document.querySelectorAll('[data-a]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const a=btn.dataset.a;const row=parseInt(btn.dataset.row);
+      const p=S.piezas.find(x=>x._row===row);if(!p)return;
+      S.pieza=p;
+      if(a==='ubicar'){S.view='ubicar';render();}
+      else if(a==='cambiar'){S.view='cambiar';render();}
+      else if(a==='rfmark'){S.view='rfmark';render();}
+      else{S.modal=a;openModal();}
+    });
+  });
+}
+
+// ── UBICAR ──
+function renderUbicar(){
+  const p=S.pieza;
+  return`<div class="fscreen">
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">Ubicar pieza</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
+<div class="fbody">
+<div class="fcard">
+<div class="fsec"><div class="fsec-lbl">Ubicación en almacén</div>
+<div class="frow">
+<div class="fg"><div class="fl">Sección / Almacén</div>
+<select class="fsel" id="f-sec"><option value="COCHE">COCHE</option><option value="DANI">DANI</option><option value="PATIO">PATIO</option><option value="ARMARIO">ARMARIO</option><option value="TALLER">TALLER</option><option value="Z">Z · Rec.Fácil</option><option value="LIBRE">Otro…</option></select></div>
+<div class="fg"><div class="fl">Nº estantería</div><input class="fi" id="f-est" type="number" inputmode="numeric" placeholder="1, 2, 3…"></div>
+</div>
+<div class="frow">
+<div class="fg"><div class="fl">Balda <span>(opcional)</span></div><input class="fi" id="f-balda" placeholder="A, B, 1…"></div>
+<div class="fg" id="libre-wrap" style="display:none"><div class="fl">Nombre libre</div><input class="fi" id="f-libre" placeholder="Ej. Caja Kia"></div>
+</div>
+<div class="preview-box" id="f-prev">—</div>
+</div>
+<div class="fsec"><div class="fsec-lbl">Notas</div>
+<div class="fg"><div class="fl">Observaciones almacén</div><input class="fi" id="f-obs" placeholder="Notas sobre la ubicación…"></div>
+</div></div>
+<div class="info-box">ℹ️ El código resultante quedará registrado como ubicación de la pieza.</div>
+</div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-red" id="btn-ub">✓ Confirmar ubicación</button></div>
+</div>`;}
+
+function bindUbicar(){
+  const back=()=>{S.view='dashboard';render();};
+  document.getElementById('fback')?.addEventListener('click',back);
+  document.getElementById('fback2')?.addEventListener('click',back);
+  const upd=()=>{
+    const sec=document.getElementById('f-sec')?.value||'';
+    const est=document.getElementById('f-est')?.value||'';
+    const bal=document.getElementById('f-balda')?.value||'';
+    const lib=document.getElementById('f-libre')?.value||'';
+    const lw=document.getElementById('libre-wrap');if(lw)lw.style.display=sec==='LIBRE'?'block':'none';
+    const prev=sec==='LIBRE'?lib:[sec+(est||''),bal].filter(Boolean).join('-');
+    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'—';
+  };
+  ['f-sec','f-est','f-balda','f-libre'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
+  document.getElementById('btn-ub')?.addEventListener('click',async()=>{
+    const sec=document.getElementById('f-sec')?.value||'';
+    const est=document.getElementById('f-est')?.value||'';
+    const bal=document.getElementById('f-balda')?.value||'';
+    const obs=document.getElementById('f-obs')?.value||'';
+    const lib=document.getElementById('f-libre')?.value||'';
+    let estanteria=sec==='LIBRE'?lib.trim():sec+(est||'');
+    if(!estanteria||estanteria===sec){showToast('Indica el número de estantería','err');return;}
+    const btn=document.getElementById('btn-ub');btn.textContent='Guardando…';btn.disabled=true;
+    const res=await api('POST',{action:'ubicar',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre});
+    if(res.ok){showToast('✓ Pieza ubicada','ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='✓ Confirmar ubicación';btn.disabled=false;}
+  });
+}
+
+// ── CAMBIAR UBICACIÓN ──
+function renderCambiar(){
+  const p=S.pieza;const cur=p.almacen||p.ubicacion||p.estanteria||'—';
+  return`<div class="fscreen">
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">📍 Cambiar ubicación</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
+<div class="fbody">
+<div class="info-box">📍 Ubicación actual: <strong>${esc(cur)}</strong>${p.usuario_colocacion?' · por '+esc(p.usuario_colocacion):''}</div>
+<div class="fcard">
+<div class="fsec"><div class="fsec-lbl">Nueva ubicación</div>
+<div class="frow">
+<div class="fg"><div class="fl">Sección</div>
+<select class="fsel" id="f-sec"><option value="COCHE">COCHE</option><option value="DANI">DANI</option><option value="PATIO">PATIO</option><option value="ARMARIO">ARMARIO</option><option value="TALLER">TALLER</option><option value="Z">Z · Rec.Fácil</option><option value="LIBRE">Otro…</option></select></div>
+<div class="fg"><div class="fl">Nº estantería</div><input class="fi" id="f-est" type="number" inputmode="numeric" placeholder="1, 2…"></div>
+</div>
+<div class="frow">
+<div class="fg"><div class="fl">Balda <span>(opcional)</span></div><input class="fi" id="f-balda" placeholder="A, B…"></div>
+<div class="fg" id="libre-wrap" style="display:none"><div class="fl">Nombre libre</div><input class="fi" id="f-libre" placeholder="Ej. Zona ext."></div>
+</div>
+<div class="preview-box" id="f-prev">—</div>
+</div>
+<div class="fsec">
+<div class="fg"><div class="fl">Motivo <span>(opcional)</span></div><input class="fi" id="f-obs" placeholder="Reorganización, más espacio…"></div>
+</div></div>
+</div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-dark" id="btn-ca">📍 Guardar nueva ubicación</button></div>
+</div>`;}
+
+function bindCambiar(){
+  const back=()=>{S.view='dashboard';render();};
+  document.getElementById('fback')?.addEventListener('click',back);
+  document.getElementById('fback2')?.addEventListener('click',back);
+  const upd=()=>{
+    const sec=document.getElementById('f-sec')?.value||'';
+    const est=document.getElementById('f-est')?.value||'';
+    const bal=document.getElementById('f-balda')?.value||'';
+    const lib=document.getElementById('f-libre')?.value||'';
+    const lw=document.getElementById('libre-wrap');if(lw)lw.style.display=sec==='LIBRE'?'block':'none';
+    const prev=sec==='LIBRE'?lib:[sec+(est||''),bal].filter(Boolean).join('-');
+    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'—';
+  };
+  ['f-sec','f-est','f-balda','f-libre'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
+  document.getElementById('btn-ca')?.addEventListener('click',async()=>{
+    const sec=document.getElementById('f-sec')?.value||'';
+    const est=document.getElementById('f-est')?.value||'';
+    const bal=document.getElementById('f-balda')?.value||'';
+    const obs=document.getElementById('f-obs')?.value||'';
+    const lib=document.getElementById('f-libre')?.value||'';
+    let estanteria=sec==='LIBRE'?lib.trim():sec+(est||'');
+    if(!estanteria||estanteria===sec){showToast('Indica la nueva estantería','err');return;}
+    const btn=document.getElementById('btn-ca');btn.textContent='Guardando…';btn.disabled=true;
+    const res=await api('POST',{action:'cambiarUbicacion',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre});
+    if(res.ok){showToast('✓ Ubicación actualizada','ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='📍 Guardar nueva ubicación';btn.disabled=false;}
+  });
+}
+
+// ── RECAMBIO FÁCIL VIEW ──
+function renderRFView(){
+  const rfList=S.piezas.filter(p=>isRF(p));
+  return`<div class="fscreen">
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">⚡ Recambio Fácil</div><div class="fhdr-sub">${rfList.length} pieza${rfList.length!==1?'s':''} para venta directa</div></div></div>
+<div class="fbody" style="padding:12px">
+<div class="rf-info-box"><div class="rf-info-title">⚡ Stock para venta directa</div><div class="rf-info-sub">Piezas que no se montarán en ningún coche. Se ubican en zona Z para evitar stock muerto y se publican para venta.</div></div>
+${rfList.length?rfList.map(p=>renderCard(p)).join(''):'<div class="empty"><div class="empty-icon">⚡</div><div class="empty-msg">No hay piezas en Recambio Fácil</div></div>'}
+</div></div>`;}
+function bindRFView(){document.getElementById('fback')?.addEventListener('click',()=>{S.view='dashboard';render();});bindPieceActions();}
+
+// ── RECAMBIO FÁCIL MARK ──
+function renderRFMark(){
+  const p=S.pieza;
+  return`<div class="fscreen">
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">⚡ Marcar Recambio Fácil</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
+<div class="fbody">
+<div class="rf-info-box"><div class="rf-info-title">⚡ ¿Qué es Recambio Fácil?</div><div class="rf-info-sub">Esta pieza NO se montará en el coche. Se publicará para venta directa y quedará ubicada en la zona Z del almacén.</div></div>
+<div class="fcard">
+<div class="fsec"><div class="fsec-lbl">Datos de la pieza</div>
+<div class="fg"><div class="fl">Descripción</div><div style="font-size:14px;font-weight:700;padding:8px 0">${esc(p.descripcion)}</div></div>
+<div class="frow">
+<div class="fg"><div class="fl">Matrícula</div><div style="font-family:monospace;font-weight:800;padding:8px 0">${esc(p.matricula||'—')}</div></div>
+<div class="fg"><div class="fl">Marca / Modelo</div><div style="font-size:13px;padding:8px 0">${esc(p.marca_modelo||'—')}</div></div>
+</div></div>
+<div class="fsec"><div class="fsec-lbl">Slot en zona Z</div>
+<div class="frow">
+<div class="fg"><div class="fl">Nº slot <span>(opcional)</span></div><input class="fi" id="rf-slot" type="number" inputmode="numeric" placeholder="1, 2, 3…"><div class="fhint">Vacío = asignado automáticamente</div></div>
+<div class="fg"><div class="fl" style="visibility:hidden">.</div><div class="preview-box" id="rf-prev" style="margin-top:0">Z—</div></div>
+</div></div>
+<div class="fsec">
+<div class="fg"><div class="fl">Notas <span>(precio, estado…)</span></div><input class="fi" id="rf-obs" placeholder="Precio venta, estado de la pieza…"></div>
+</div></div>
+</div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-rf" id="btn-rf">⚡ Confirmar Recambio Fácil</button></div>
+</div>`;}
+
+function bindRFMark(){
+  const back=()=>{S.view='dashboard';render();};
+  document.getElementById('fback')?.addEventListener('click',back);
+  document.getElementById('fback2')?.addEventListener('click',back);
+  document.getElementById('rf-slot')?.addEventListener('input',()=>{
+    const s=document.getElementById('rf-slot')?.value||'';
+    const el=document.getElementById('rf-prev');if(el)el.textContent='Z'+(s?'-'+s:'—');
+  });
+  document.getElementById('btn-rf')?.addEventListener('click',async()=>{
+    let slot=document.getElementById('rf-slot')?.value||'';
+    const obs=document.getElementById('rf-obs')?.value||'';
+    if(!slot){
+      const used=S.piezas.filter(p=>isRF(p)).map(p=>parseInt(p.estanteria||p.balda||'0')).filter(n=>!isNaN(n)&&n>0);
+      slot=String(used.length>0?Math.max(...used)+1:1);
+    }
+    const btn=document.getElementById('btn-rf');btn.textContent='Guardando…';btn.disabled=true;
+    const obsAlm=['RECAMBIO FACIL',obs].filter(Boolean).join(' · ');
+    const res=await api('POST',{action:'ubicar',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria:'Z',balda:slot,obs_almacen:obsAlm,usuario:S.user.nombre});
+    if(res.ok){showToast('⚡ Recambio Fácil · Slot Z-'+slot,'ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='⚡ Confirmar Recambio Fácil';btn.disabled=false;}
+  });
+}
+
+// ── MODAL ──
+function openModal(){
+  const p=S.pieza;if(!p||!S.modal)return;
+  let title,sub,extra='',confTxt,confStyle;
+  if(S.modal==='montar'){
+    title='🔧 Confirmar montaje';
+    sub=`¿Confirmas que <strong>${esc(p.descripcion)}</strong> de <strong>${esc(p.matricula)}</strong> ha sido montada?`;
+    confTxt='✓ Sí, confirmar montaje';confStyle='background:#1a1a1a;color:#fff';
+  }else if(S.modal==='devolver'){
+    title='↩ Devolver pieza';
+    sub=`<strong>${esc(p.descripcion)}</strong> · ${esc(p.matricula)}`;
+    extra=`<div style="margin:12px 0"><div class="fl" style="margin-bottom:5px;font-size:12px;font-weight:700;color:#555">Motivo <span style="font-weight:400;color:#aaa">(opcional)</span></div><input class="fi" id="modal-obs" placeholder="Pieza incorrecta, dañada…"></div>`;
+    confTxt='Confirmar devolución';confStyle='background:#FFF3E0;color:#e65100;border:1px solid #FFCC80';
+  }else if(S.modal==='borrar'){
+    title='🗑 Borrar pieza';
+    sub=`¿Seguro que quieres eliminar <strong>${esc(p.descripcion)}</strong> de <strong>${esc(p.matricula)}</strong>? No se puede deshacer.`;
+    confTxt='Sí, borrar definitivamente';confStyle='background:#c62828;color:#fff';
+  }else if(S.modal==='incidencia'){
+    title='⚠ Registrar incidencia';
+    sub=`${esc(p.descripcion)} · ${esc(p.matricula)}`;
+    extra=`<div style="margin:12px 0"><div class="fl" style="margin-bottom:5px;font-size:12px;font-weight:700;color:#555">Descripción de la incidencia</div><input class="fi" id="modal-obs" placeholder="Pieza dañada, falta referencia…"></div>`;
+    confTxt='Guardar incidencia';confStyle='background:#f57f17;color:#fff';
+  }
+  const ov=document.createElement('div');
+  ov.className='modal-overlay';ov.id='modal-overlay';
+  ov.innerHTML=`<div class="modal-sheet"><div class="modal-drag"></div><div class="modal-title">${title}</div><div class="modal-sub">${sub}</div>${extra}<div class="modal-acts"><button class="mbutton" id="modal-ok" style="${confStyle}">${confTxt}</button><button class="mbutton mbutton-cancel" id="modal-cancel">Cancelar</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)closeModal();});
+  document.getElementById('modal-cancel')?.addEventListener('click',closeModal);
+  document.getElementById('modal-ok')?.addEventListener('click',doModal);
+}
+function closeModal(){const el=document.getElementById('modal-overlay');if(el)el.remove();S.modal=null;}
+async function doModal(){
+  const p=S.pieza;if(!p)return;
+  const btn=document.getElementById('modal-ok');if(btn){btn.textContent='Procesando…';btn.disabled=true;}
+  let res;
+  if(S.modal==='montar'){
+    res=await api('POST',{action:'montar',_row:p._row,taller:pTaller(p),usuario:S.user.nombre});
+    if(res.ok)showToast('✓ Montaje registrado','ok');
+  }else if(S.modal==='devolver'){
+    const obs=document.getElementById('modal-obs')?.value||'';
+    res=await api('POST',{action:'devolver',_row:p._row,taller:pTaller(p),usuario:S.user.nombre,obs_almacen:obs});
+    if(res.ok)showToast('↩ Devolución registrada','ok');
+  }else if(S.modal==='borrar'){
+    res=await api('POST',{action:'borrar',_row:p._row,taller:pTaller(p),codigo:S.user.codigo||S.user.nombre});
+    if(res.ok)showToast('🗑 Pieza eliminada','neutral');
+  }else if(S.modal==='incidencia'){
+    const obs=document.getElementById('modal-obs')?.value||'';
+    if(!obs.trim()){showToast('Describe la incidencia','err');if(btn){btn.textContent='Guardar incidencia';btn.disabled=false;}return;}
+    res=await api('POST',{action:'setIncidencia',_row:p._row,taller:pTaller(p),incidencia:obs,usuario:S.user.nombre});
+    if(res.ok)showToast('⚠ Incidencia registrada','ok');
+  }
+  if(res&&!res.ok){showToast('Error: '+(res.error||'Inténtalo de nuevo'),'err');if(btn){btn.disabled=false;}return;}
+  closeModal();
+  if(S.taller==='AMBOS')loadBoth();else loadPiezas();
+}
+
+render();
+</script>
+</body>
+</html>
