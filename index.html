@@ -302,9 +302,23 @@ function bindLogin(){
       const k=btn.dataset.key;
       if(k==='⌫'){S.pin=S.pin.slice(0,-1);updPin();}
       else if(k==='✓'){await doLogin();}
-      else if(S.pin.length<7){S.pin+=k;updPin();}
+      else if(S.pin.length<7){S.pin+=k;updPin();if(S.pin.length>=4)autoTryLogin();}
     });
   });
+}
+async function autoTryLogin(){
+  const pin=S.pin;
+  const res=await api('GET',{action:'login',codigo:pin});
+  if(S.pin!==pin)return; // user typed more while waiting
+  if(res.ok&&res.user){
+    S.user=res.user;S.taller=res.user.taller||'JM';S.pin='';S.view='dashboard';S.filter='all';S.search='';
+    render();
+    if(S.taller==='AMBOS')loadBoth();else loadPiezas();
+  }else if(S.pin.length>=7){
+    const err=document.getElementById('login-err');
+    if(err)err.textContent='❌ Código incorrecto';
+    S.pin='';updPin();
+  }
 }
 function updPin(){
   const d=document.querySelector('.pin-display');
