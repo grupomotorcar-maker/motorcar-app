@@ -64,6 +64,9 @@ button,input,select,textarea{font-family:inherit;font-size:14px}
 .b-de{background:#ECEFF1;color:#546e7a}
 .b-rf{background:#1a1a1a;color:#E24B4A}
 .b-loc{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.piece-loc{padding:10px 14px;background:#E3F2FD;border-top:1px solid #BBDEFB;display:flex;align-items:center;gap:10px}
+.piece-loc-lbl{font-size:10px;font-weight:800;color:#1565c0;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;white-space:nowrap}
+.piece-loc-val{font-size:20px;font-weight:900;color:#1a1a1a;font-family:monospace;letter-spacing:.02em}
 .b-inc{background:#FFEBEE;color:#c62828}
 .piece-acts{padding:8px 12px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #f0f0f0}
 .btn{border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #ddd;background:#f5f5f5;color:#444;transition:transform .1s;white-space:nowrap}
@@ -254,8 +257,13 @@ function badgeEstado(p){
   if(e==='de')return'<span class="badge b-de">↩ Devuelto</span>';
   return'';
 }
+function fullLoc(p){
+  const base=p.estanteria||p.almacen||p.ubicacion||'';
+  const balda=p.balda||'';
+  return [base,balda].filter(Boolean).join('-');
+}
 function badgeLoc(p){
-  const loc=p.almacen||p.ubicacion||p.estanteria;
+  const loc=fullLoc(p);
   if(!loc)return'';
   return`<span class="badge b-loc">📍 ${esc(loc)}</span>`;
 }
@@ -421,14 +429,17 @@ function renderCard(p){
   if(canInc&&est!=='de'){acts+=`<button class="btn btn-warn" data-a="incidencia" data-row="${p._row}">⚠ Incidencia</button>`;}
   if(canDel){acts+=`<button class="btn btn-del" data-a="borrar" data-row="${p._row}">🗑 Borrar</button>`;}
   const tallTag=S.taller==='AMBOS'?`<span class="badge" style="background:#EDE7F6;color:#4527A0;font-size:10px">${pTaller(p)}</span>`:'';
+  const loc=fullLoc(p);
+  const locBlock=loc?`<div class="piece-loc"><div class="piece-loc-lbl">📍 Ubicación</div><div class="piece-loc-val">${esc(loc)}</div></div>`:'';
   return`<div class="piece-card">
 <div class="piece-top">
 <div style="flex-shrink:0;text-align:center"><div class="piece-mat">${esc(p.matricula||'—')}</div>${p.or?`<div class="piece-or">OR ${esc(p.or)}</div>`:''}</div>
 <div class="piece-info">
 <div class="piece-desc">${esc(p.descripcion||'Sin descripción')}</div>
 <div class="piece-meta">${esc([p.marca_modelo,p.proveedor].filter(Boolean).join(' · '))}</div>
-<div class="piece-badges">${badgeEstado(p)}${badgeLoc(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">⚠ ${esc(p.incidencia)}</span>`:''}</div>
+<div class="piece-badges">${badgeEstado(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">⚠ ${esc(p.incidencia)}</span>`:''}</div>
 </div></div>
+${locBlock}
 ${acts?`<div class="piece-acts">${acts}</div>`:''}
 </div>`;}
 
