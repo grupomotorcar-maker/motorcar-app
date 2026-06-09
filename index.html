@@ -268,12 +268,12 @@ function fcount(f){
 }
 
 function badgeEstado(p){
-  if(isRF(p))return'<span class="badge b-rf">â¡ Rec.FÃ¡cil</span>';
+  if(isRF(p))return'<span class="badge b-rf">⚡ Rec.Fácil</span>';
   const e=normEstado(p.estado);
-  if(e==='sin')return'<span class="badge b-sin">ð¦ Sin ubicar</span>';
-  if(e==='ub')return'<span class="badge b-ub">ð Ubicado</span>';
-  if(e==='mo')return'<span class="badge b-mo">ð§ Montado</span>';
-  if(e==='de')return'<span class="badge b-de">â© Devuelto</span>';
+  if(e==='sin')return'<span class="badge b-sin">📦 Sin ubicar</span>';
+  if(e==='ub')return'<span class="badge b-ub">📍 Ubicado</span>';
+  if(e==='mo')return'<span class="badge b-mo">🔧 Montado</span>';
+  if(e==='de')return'<span class="badge b-de">↩ Devuelto</span>';
   return'';
 }
 function fullLoc(p){
@@ -284,10 +284,10 @@ function fullLoc(p){
 function badgeLoc(p){
   const loc=fullLoc(p);
   if(!loc)return'';
-  return`<span class="badge b-loc">ð ${esc(loc)}</span>`;
+  return`<span class="badge b-loc">📍 ${esc(loc)}</span>`;
 }
 
-// ââ RENDER ââ
+// ── RENDER ──
 function render(){
   const app=document.getElementById('app');
   if(S.view==='login'){app.innerHTML=renderLogin();setTimeout(bindLogin,0);}
@@ -308,17 +308,17 @@ function partialRender(){
   setTimeout(bindPieceActions,0);
 }
 
-// ââ LOGIN ââ
+// ── LOGIN ──
 function renderLogin(){
   const n=S.pin.length;
   const dots=n>0?Array.from({length:Math.max(n,4)},(_,i)=>`<div class="pdot${i<n?' on':''}"></div>`).join(''):'';
   return`<div class="login-screen">
 <div class="login-logo">M</div>
 <div class="login-title">Motorcar APP</div>
-<div class="login-sub">Control de recambios Â· Grupo Motorcar</div>
-<div class="pin-display">${n>0?`<div class="pin-dots-row">${dots}</div>`:'<span class="pin-placeholder">Introduce tu cÃ³digo PIN</span>'}</div>
+<div class="login-sub">Control de recambios · Grupo Motorcar</div>
+<div class="pin-display">${n>0?`<div class="pin-dots-row">${dots}</div>`:'<span class="pin-placeholder">Introduce tu código PIN</span>'}</div>
 <div class="numpad">
-${[1,2,3,4,5,6,7,8,9,'â«',0,'â'].map(k=>`<div class="nkey${k==='â«'?' ndel':''}${k==='â'?' nok':''}" data-key="${k}">${k}</div>`).join('')}
+${[1,2,3,4,5,6,7,8,9,'⌫',0,'✓'].map(k=>`<div class="nkey${k==='⌫'?' ndel':''}${k==='✓'?' nok':''}" data-key="${k}">${k}</div>`).join('')}
 </div>
 <div id="login-err" class="login-err"></div>
 </div>`;}
@@ -327,8 +327,8 @@ function bindLogin(){
   document.querySelectorAll('.nkey').forEach(btn=>{
     btn.addEventListener('click',async()=>{
       const k=btn.dataset.key;
-      if(k==='â«'){S.pin=S.pin.slice(0,-1);updPin();}
-      else if(k==='â'){await doLogin();}
+      if(k==='⌫'){S.pin=S.pin.slice(0,-1);updPin();}
+      else if(k==='✓'){await doLogin();}
       else if(S.pin.length<7){S.pin+=k;updPin();if(S.pin.length>=4)autoTryLogin();}
     });
   });
@@ -336,7 +336,7 @@ function bindLogin(){
 async function autoTryLogin(){
   const pin=S.pin;
   const err=document.getElementById('login-err');
-  if(err)err.textContent='ð Verificandoâ¦';
+  if(err)err.textContent='🔄 Verificando…';
   const res=await api('GET',{action:'login',codigo:pin});
   if(S.pin!==pin){if(err)err.textContent='';return;} // user typed more while waiting
   if(res.ok&&res.user){
@@ -346,7 +346,7 @@ async function autoTryLogin(){
   }else{
     if(err)err.textContent='';
     if(S.pin.length>=7){
-      if(err)err.textContent='â CÃ³digo incorrecto';
+      if(err)err.textContent='❌ Código incorrecto';
       S.pin='';updPin();
     }
   }
@@ -355,29 +355,29 @@ function updPin(){
   const d=document.querySelector('.pin-display');
   if(!d)return;
   const n=S.pin.length;
-  d.innerHTML=n>0?`<div class="pin-dots-row">${Array.from({length:Math.max(n,4)},(_,i) =>`<div class="pdot${i<n?' on':''}"></div>`).join('')}</div>`;'<span class="pin-placeholder">Introduce tu cÃ³digo PIN</span>';
+  d.innerHTML=n>0?`<div class="pin-dots-row">${Array.from({length:Math.max(n,4)},(_,i)=>`<div class="pdot${i<n?' on':''}"></div>`).join('')}</div>`:'<span class="pin-placeholder">Introduce tu código PIN</span>';
 }
 async function doLogin(){
   if(!S.pin)return;
   const err=document.getElementById('login-err');
-  if(err)err.textContent='Verificandoâ¦';
+  if(err)err.textContent='Verificando…';
   const res=await api('GET',{action:'login',codigo:S.pin});
   if(res.ok&&res.user){
     S.user=res.user;S.taller=res.user.taller||'JM';S.pin='';S.view='dashboard';S.filter='all';S.search='';
     render();
     if(S.taller==='AMBOS')loadBoth();else loadPiezas();
   }else{
-    if(err)err.textContent='âÌ CÃ³digo incorrecto';
+    if(err)err.textContent='❌ Código incorrecto';
     S.pin='';updPin();
   }
 }
 
-// ââ DASHBOARD ââ
+// ── DASHBOARD ──
 function renderDashboard(){
   const k=kpi();const isCeo=S.user?.nivel<=1;
   return`<div style="min-height:100vh;background:#f0f0f0;padding-bottom:20px">
 <div class="hdr">
-  <div class="hdr-logo"><div class="hdr-icon">M</div><div><div class="hdr-title">Motorcar APP</div><div class="hdr-sub">${esc(S.user?.nombre)} Â· ${esc(S.user?.rol)}</div></div></div>
+  <div class="hdr-logo"><div class="hdr-icon">M</div><div><div class="hdr-title">Motorcar APP</div><div class="hdr-sub">${esc(S.user?.nombre)} · ${esc(S.user?.rol)}</div></div></div>
   <div class="hdr-right"><div class="hdr-user">${S.taller==='AMBOS'?'JM+RM':S.taller}</div><button class="btn-logout" id="btn-logout">Salir</button></div>
 </div>
 ${isCeo?`<div class="tabs">
@@ -386,24 +386,24 @@ ${isCeo?`<div class="tabs">
 <div class="tab${S.taller==='AMBOS'?' active':''}" data-taller="AMBOS">Todos</div>
 </div>`:''}
 <div class="kpi-grid">
-<div class="kpi red" data-filter="sin"><div class="kpi-icon">ð¦</div><div class="kpi-val" id="kpi-sin">${k.sin}</div><div class="kpi-lbl">Sin ubicar</div></div>
-<div class="kpi blue" data-filter="ub"><div class="kpi-icon">ð </div><div class="kpi-val" id="kpi-ub">${k.ub}</div><div class="kpi-lbl">Ubicadas</div></div>
-<div class="kpi green" data-filter="mo"><div class="kpi-icon">ð§</div><div class="kpi-val" id="kpi-mo">${k.mo}</div><div class="kpi-lbl">Montadas</div></div>
-<div class="kpi rf" data-filter="rf"><div class="kpi-icon">â¡</div><div class="kpi-val" id="kpi-rf">${k.rf}</div><div class="kpi-lbl">Rec.FÃ¡cil</div></div>
+<div class="kpi red" data-filter="sin"><div class="kpi-icon">📦</div><div class="kpi-val" id="kpi-sin">${k.sin}</div><div class="kpi-lbl">Sin ubicar</div></div>
+<div class="kpi blue" data-filter="ub"><div class="kpi-icon">📍</div><div class="kpi-val" id="kpi-ub">${k.ub}</div><div class="kpi-lbl">Ubicadas</div></div>
+<div class="kpi green" data-filter="mo"><div class="kpi-icon">🔧</div><div class="kpi-val" id="kpi-mo">${k.mo}</div><div class="kpi-lbl">Montadas</div></div>
+<div class="kpi rf" data-filter="rf"><div class="kpi-icon">⚡</div><div class="kpi-val" id="kpi-rf">${k.rf}</div><div class="kpi-lbl">Rec.Fácil</div></div>
 </div>
 <div class="rf-banner" id="rf-banner">
-  <div><div class="rf-txt-title">â¡ Recambio FÃ¡cil</div><div class="rf-txt-sub" id="rf-count">${k.rf} en stock Â· piezas para venta directa</div></div>
-  <button class="rf-btn">Ver stock â</button>
+  <div><div class="rf-txt-title">⚡ Recambio Fácil</div><div class="rf-txt-sub" id="rf-count">${k.rf} en stock · piezas para venta directa</div></div>
+  <button class="rf-btn">Ver stock →</button>
 </div>
 <div class="filter-bar">
 <span class="fpill${S.filter==='all'?' f-all':''}" data-f="all">Todas <span class="fc">${fcount('all')}</span></span>
 <span class="fpill${S.filter==='sin'?' f-sin':''}" data-f="sin">Sin ubicar <span class="fc">${fcount('sin')}</span></span>
-<span class="fpill${S.filter==='ub' ?' f-ub':''}" data-f="ub">Ubicadas <span class="fc">${fcount('ub')}</span></span>
+<span class="fpill${S.filter==='ub'?' f-ub':''}" data-f="ub">Ubicadas <span class="fc">${fcount('ub')}</span></span>
 <span class="fpill${S.filter==='mo'?' f-mo':''}" data-f="mo">Montadas <span class="fc">${fcount('mo')}</span></span>
 <span class="fpill${S.filter==='de'?' f-de':''}" data-f="de">Devueltas <span class="fc">${fcount('de')}</span></span>
-<span class="fpill${S.filter==='rf'?' f-rf':''}" data-f="rf">â¡ RF <span class="fc">${fcount('rf')}</span></span>
+<span class="fpill${S.filter==='rf'?' f-rf':''}" data-f="rf">⚡ RF <span class="fc">${fcount('rf')}</span></span>
 </div>
-<div class="search-wrap"><div class="search-wrap-inner"><span class="search-icon">ð</span><input class="search-input" id="search" type="search" placeholder="MatrÃ­cula, descripciÃ³n, referenciaâ¦" value="${esc(S.search)}" autocorrect="off" autocapitalize="off" spellcheck="false"></div></div>
+<div class="search-wrap"><div class="search-wrap-inner"><span class="search-icon">🔍</span><input class="search-input" id="search" type="search" placeholder="Matrícula, descripción, referencia…" value="${esc(S.search)}" autocorrect="off" autocapitalize="off" spellcheck="false"></div></div>
 <div class="piece-list" id="piece-list">${renderPiezasList()}</div>
 </div>`;}
 
@@ -432,25 +432,25 @@ function updFilters(){
 }
 
 function renderPiezasList(){
-  if(S.loading)return'<div class="loading"><div class="spinner"></div>Cargando piezasâ¦</div>';
+  if(S.loading)return'<div class="loading"><div class="spinner"></div>Cargando piezas…</div>';
   const list=filteredList();
-  if(!list.length)return'<div class="empty"><div class="empty-icon">ð­</div><div class="empty-msg">No hay piezas</div></div>';
+  if(!list.length)return'<div class="empty"><div class="empty-icon">📭</div><div class="empty-msg">No hay piezas</div></div>';
   return list.map(p=>renderCard(p)).join('');
 }
 function renderCard(p){
   const loc=fullLoc(p);
   const tallTag=S.taller==='AMBOS'?`<span class="badge" style="background:#EDE7F6;color:#4527A0;font-size:10px">${pTaller(p)}</span>`:'';
-  const locBlock=loc?`<div class="piece-loc"><div class="piece-loc-lbl">ð UbicaciÃ³n</div><div class="piece-loc-val">${esc(loc)}</div></div>`:'';
+  const locBlock=loc?`<div class="piece-loc"><div class="piece-loc-lbl">📍 Ubicación</div><div class="piece-loc-val">${esc(loc)}</div></div>`:'';
   return`<div class="piece-card" data-row="${p._row}" data-tap="detail">
 <div class="piece-top piece-top-tap">
-<div style="flex-shrink:0;text-align:center"><div class="piece-mat">${esc(p.matricula||'â')}</div>${p.or?`<div class="piece-or">OR ${esc(p.or)}</div>`:''}</div>
+<div style="flex-shrink:0;text-align:center"><div class="piece-mat">${esc(p.matricula||'—')}</div>${p.or?`<div class="piece-or">OR ${esc(p.or)}</div>`:''}</div>
 <div class="piece-info">
-<div class="piece-desc">${esc(p.descripcion||'Sin descripciÃ³n')}</div>
-<div class="piece-meta">${esc([p.marca_modelo,p.proveedor].filter(Boolean).join(' Â· '))}</div>
-${(p.referencia||p.albaran)?`<div style="font-size:10px;color:#888;margin-top:2px;font-family:monospace">${[p.referencia?`Ref: ${esc(p.referencia)}`:null,p.albaran?`Alb: ${esc(p.albaran)}`:null].filter(Boolean).join(' Â· ')}</div>`:``}
-<div class="piece-badges">${badgeEstado(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">â  ${esc(p.incidencia)}</span>`:''}</div>
+<div class="piece-desc">${esc(p.descripcion||'Sin descripción')}</div>
+<div class="piece-meta">${esc([p.marca_modelo,p.proveedor].filter(Boolean).join(' · '))}</div>
+${(p.referencia||p.albaran)?`<div style="font-size:10px;color:#888;margin-top:2px;font-family:monospace">${[p.referencia?`Ref: ${esc(p.referencia)}`:null,p.albaran?`Alb: ${esc(p.albaran)}`:null].filter(Boolean).join(' · ')}</div>`:``}
+<div class="piece-badges">${badgeEstado(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">⚠ ${esc(p.incidencia)}</span>`:''}</div>
 </div>
-<div style="flex-shrink:0;color:#bbb;font-size:18px;align-self:center">âº</div>
+<div style="flex-shrink:0;color:#bbb;font-size:18px;align-self:center">›</div>
 </div>
 ${locBlock}
 </div>`;}
@@ -461,39 +461,39 @@ function openDetail(p){
   const loc=fullLoc(p);
   const tallTag=S.taller==='AMBOS'?`<span class="badge" style="background:#EDE7F6;color:#4527A0">${pTaller(p)}</span>`:'';
   let acts='';
-  if(!rf&&est==='sin'){acts+=`<button class="detail-act-btn" style="background:#E24B4A;color:#fff" data-a="ubicar" data-row="${p._row}">ð¦ Ubicar pieza</button><button class="detail-act-btn" style="background:#1a1a1a;color:#E24B4A" data-a="rfmark" data-row="${p._row}">â¡ Marcar Recambio FÃ¡cil</button>`;}
-  if(!rf&&est==='ub'){acts+=`<button class="detail-act-btn" style="background:#E3F2FD;color:#1565c0;border:1.5px solid #90CAF9" data-a="cambiar" data-row="${p._row}">ð Cambiar ubicaciÃ³n</button><button class="detail-act-btn" style="background:#1a1a1a;color:#fff" data-a="montar" data-row="${p._row}">ð§ Confirmar montaje</button><button class="detail-act-btn" style="background:#f5f5f5;color:#666" data-a="devolver" data-row="${p._row}">â© Devolver</button>`;}
-  if(rf){acts+=`<button class="detail-act-btn" style="background:#E3F2FD;color:#1565c0;border:1.5px solid #90CAF9" data-a="cambiar" data-row="${p._row}">ð Cambiar ubicaciÃ³n</button><button class="detail-act-btn" style="background:#1a1a1a;color:#fff" data-a="montar" data-row="${p._row}">ð§ Confirmar montaje</button>`;}
-  if(est==='mo'){acts+=`<button class="detail-act-btn" style="background:#f5f5f5;color:#666" data-a="devolver" data-row="${p._row}">â© Devolver</button>`;}
-  if(canInc&&est!=='de'){acts+=`<button class="detail-act-btn" style="background:#FFF8E1;color:#f57f17;border:1.5px solid #FFE082" data-a="incidencia" data-row="${p._row}">â  Registrar incidencia</button>`;}
-  if(canDel){acts+=`<button class="detail-act-btn" style="background:#FFEBEE;color:#c62828;border:1.5px solid #FFCDD2" data-a="borrar" data-row="${p._row}">ð Borrar pieza</button>`;}
+  if(!rf&&est==='sin'){acts+=`<button class="detail-act-btn" style="background:#E24B4A;color:#fff" data-a="ubicar" data-row="${p._row}">📦 Ubicar pieza</button><button class="detail-act-btn" style="background:#1a1a1a;color:#E24B4A" data-a="rfmark" data-row="${p._row}">⚡ Marcar Recambio Fácil</button>`;}
+  if(!rf&&est==='ub'){acts+=`<button class="detail-act-btn" style="background:#E3F2FD;color:#1565c0;border:1.5px solid #90CAF9" data-a="cambiar" data-row="${p._row}">📍 Cambiar ubicación</button><button class="detail-act-btn" style="background:#1a1a1a;color:#fff" data-a="montar" data-row="${p._row}">🔧 Confirmar montaje</button><button class="detail-act-btn" style="background:#f5f5f5;color:#666" data-a="devolver" data-row="${p._row}">↩ Devolver</button>`;}
+  if(rf){acts+=`<button class="detail-act-btn" style="background:#E3F2FD;color:#1565c0;border:1.5px solid #90CAF9" data-a="cambiar" data-row="${p._row}">📍 Cambiar ubicación</button><button class="detail-act-btn" style="background:#1a1a1a;color:#fff" data-a="montar" data-row="${p._row}">🔧 Confirmar montaje</button>`;}
+  if(est==='mo'){acts+=`<button class="detail-act-btn" style="background:#f5f5f5;color:#666" data-a="devolver" data-row="${p._row}">↩ Devolver</button>`;}
+  if(canInc&&est!=='de'){acts+=`<button class="detail-act-btn" style="background:#FFF8E1;color:#f57f17;border:1.5px solid #FFE082" data-a="incidencia" data-row="${p._row}">⚠ Registrar incidencia</button>`;}
+  if(canDel){acts+=`<button class="detail-act-btn" style="background:#FFEBEE;color:#c62828;border:1.5px solid #FFCDD2" data-a="borrar" data-row="${p._row}">🗑 Borrar pieza</button>`;}
 
   const locHtml=loc
-    ?`<div class="detail-loc-box has-loc"><div class="detail-loc-lbl has-loc">ð UbicaciÃ³n</div><div class="detail-loc-val">${esc(loc)}</div></div>`
-    :`<div class="detail-loc-box no-loc"><div class="detail-loc-lbl no-loc">ð¦ Sin ubicar todavÃ­a</div></div>`;
+    ?`<div class="detail-loc-box has-loc"><div class="detail-loc-lbl has-loc">📍 Ubicación</div><div class="detail-loc-val">${esc(loc)}</div></div>`
+    :`<div class="detail-loc-box no-loc"><div class="detail-loc-lbl no-loc">📦 Sin ubicar todavía</div></div>`;
 
   const ov=document.createElement('div');
   ov.className='modal-overlay';ov.id='modal-overlay';
   ov.innerHTML=`<div class="modal-sheet" style="padding-bottom:40px">
 <div class="modal-drag"></div>
 <div style="text-align:center;margin-bottom:14px">
-  <div class="detail-mat">${esc(p.matricula||'â')}</div>
+  <div class="detail-mat">${esc(p.matricula||'—')}</div>
   ${p.or?`<div class="detail-or">OR ${esc(p.or)}</div>`:''}
 </div>
-<div class="detail-desc">${esc(p.descripcion||'Sin descripciÃ³n')}</div>
-<div class="detail-meta">${esc([p.marca_modelo,p.proveedor].filter(Boolean).join(' Â· '))}</div>
+<div class="detail-desc">${esc(p.descripcion||'Sin descripción')}</div>
+<div class="detail-meta">${esc([p.marca_modelo,p.proveedor].filter(Boolean).join(' · '))}</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
   <div style="background:#f5f5f5;border-radius:10px;padding:10px 8px;text-align:center">
     <div style="font-size:9px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Referencia</div>
-    <div style="font-size:13px;font-weight:900;font-family:monospace;color:#111;word-break:break-all">${esc(p.referencia||'â')}</div>
+    <div style="font-size:13px;font-weight:900;font-family:monospace;color:#111;word-break:break-all">${esc(p.referencia||'—')}</div>
   </div>
   <div style="background:#f5f5f5;border-radius:10px;padding:10px 8px;text-align:center">
-    <div style="font-size:9px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">AlbarÃ¡n</div>
-    <div style="font-size:13px;font-weight:900;font-family:monospace;color:#111;word-break:break-all">${esc(p.albaran||'â')}</div>
+    <div style="font-size:9px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Albarán</div>
+    <div style="font-size:13px;font-weight:900;font-family:monospace;color:#111;word-break:break-all">${esc(p.albaran||'—')}</div>
   </div>
 </div>
 ${locHtml}
-<div class="detail-badges">${badgeEstado(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">â  ${esc(p.incidencia)}</span>`:''}</div>
+<div class="detail-badges">${badgeEstado(p)}${tallTag}${p.incidencia?`<span class="badge b-inc">⚠ ${esc(p.incidencia)}</span>`:''}</div>
 ${acts?`<div class="detail-acts">${acts}</div>`:''}
 <button class="detail-act-btn" style="background:#f5f5f5;color:#666;margin-top:10px" id="detail-close">Cerrar</button>
 </div>`;
@@ -526,16 +526,16 @@ function bindPieceActions(){
   });
 }
 
-// ââ UBICAR ââ
+// ── UBICAR ──
 function zonaSelect(id){
   return`<select class="fsel" id="${id}">
 <optgroup label="Joan Motorcar">
-  <option value="TALLER">ð§ Taller JM</option>
-  <option value="CAMPA">ð Campa JM</option>
+  <option value="TALLER">🔧 Taller JM</option>
+  <option value="CAMPA">🚗 Campa JM</option>
 </optgroup>
 <optgroup label="Otros">
-  <option value="Z">â¡ Z Â· Recambio FÃ¡cil</option>
-  <option value="OTRO">âï¸ Otroâ¦</option>
+  <option value="Z">⚡ Z · Recambio Fácil</option>
+  <option value="OTRO">✏️ Otro…</option>
 </optgroup>
 </select>`;}
 
@@ -547,29 +547,29 @@ function buildLocStr(zona,zonaLibre,est,bal){
 function renderUbicar(){
   const p=S.pieza;
   return`<div class="fscreen">
-<div class="fhdr"><div class="fback" id="fback">â</div><div style="flex:1;min-width:0"><div class="fhdr-title">ð¦ Ubicar pieza</div><div class="fhdr-sub">${esc(p.matricula)} Â· ${esc(p.descripcion)}</div></div></div>
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">📦 Ubicar pieza</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
 <div class="fbody">
 <div class="fcard">
-<div class="fsec"><div class="fsec-lbl">1 Â· Zona / AlmacÃ¬n</div>
+<div class="fsec"><div class="fsec-lbl">1 · Zona / Almacìn</div>
 <div class="fg">${zonaSelect('f-zona')}</div>
-<div class="fg" id="otro-wrap" style="display:none"><div class="fl">Nombre de la zona</div><input class="fi" id="f-zona-libre" placeholder="Ej. AlmacÃ©n externoâ¦" autocapitalize="characters"></div>
+<div class="fg" id="otro-wrap" style="display:none"><div class="fl">Nombre de la zona</div><input class="fi" id="f-zona-libre" placeholder="Ej. Almacén externo…" autocapitalize="characters"></div>
 </div>
-<div class="fsec"><div class="fsec-lbl">2 Â· EstanterÃ­a</div>
-<div class="fg"><div class="fl">NÂº o nombre de estanterÃ­a</div>
-<input class="fi" id="f-est" placeholder="Ej. 3, EST-A, Armario2â¦" autocapitalize="characters" autocorrect="off">
-<div class="fhint">Escribe el nÃºmero o nombre exacto de la estanterÃ­a</div></div>
+<div class="fsec"><div class="fsec-lbl">2 · Estantería</div>
+<div class="fg"><div class="fl">Nº o nombre de estantería</div>
+<input class="fi" id="f-est" placeholder="Ej. 3, EST-A, Armario2…" autocapitalize="characters" autocorrect="off">
+<div class="fhint">Escribe el número o nombre exacto de la estantería</div></div>
 </div>
-<div class="fsec"><div class="fsec-lbl">3 Â· Balda <span style="font-weight:400;color:#bbb">(opcional)</span></div>
-<div class="fg"><input class="fi" id="f-balda" placeholder="Ej. A, B, 1, 2â¦" autocapitalize="characters" autocorrect="off"></div>
+<div class="fsec"><div class="fsec-lbl">3 · Balda <span style="font-weight:400;color:#bbb">(opcional)</span></div>
+<div class="fg"><input class="fi" id="f-balda" placeholder="Ej. A, B, 1, 2…" autocapitalize="characters" autocorrect="off"></div>
 </div>
 <div class="fsec" style="background:#1a1a1a;border-radius:0 0 12px 12px">
-<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Vista previa de ubicaciÃ³n</div>
-<div class="preview-box" id="f-prev" style="font-size:24px;background:#111;border-color:#333;color:#E24B4A">â</div>
+<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Vista previa de ubicación</div>
+<div class="preview-box" id="f-prev" style="font-size:24px;background:#111;border-color:#333;color:#E24B4A">—</div>
 </div>
 </div>
-<div class="fg" style="padding:0 0 12px"><div class="fl" style="padding:0 12px">Notas <span>(opcional)</span></div><input class="fi" style="margin:0 12px;width:calc(100% - 24px)" id="f-obs" placeholder="Observaciones sobre la ubicaciÃ³nâ¦"></div>
+<div class="fg" style="padding:0 0 12px"><div class="fl" style="padding:0 12px">Notas <span>(opcional)</span></div><input class="fi" style="margin:0 12px;width:calc(100% - 24px)" id="f-obs" placeholder="Observaciones sobre la ubicación…"></div>
 </div>
-<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-red" id="btn-ub">â Confirmar ubicaciÃ³n</button></div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-red" id="btn-ub">✓ Confirmar ubicación</button></div>
 </div>`;}
 
 function bindUbicar(){
@@ -583,7 +583,7 @@ function bindUbicar(){
     const bal=document.getElementById('f-balda')?.value||'';
     const ow=document.getElementById('otro-wrap');if(ow)ow.style.display=zona==='OTRO'?'block':'none';
     const prev=buildLocStr(zona,zonaLibre,est,bal);
-    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'â';
+    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'—';
   };
   ['f-zona','f-zona-libre','f-est','f-balda'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
   document.getElementById('btn-ub')?.addEventListener('click',async()=>{
@@ -592,43 +592,43 @@ function bindUbicar(){
     const est=(document.getElementById('f-est')?.value||'').trim();
     const bal=(document.getElementById('f-balda')?.value||'').trim();
     const obs=document.getElementById('f-obs')?.value||'';
-    if(!est){showToast('Indica la estanterÃ­a','err');return;}
+    if(!est){showToast('Indica la estantería','err');return;}
     const estanteria=buildLocStr(zona,zonaLibre,est,bal);
-    const btn=document.getElementById('btn-ub');btn.textContent='Guardandoâ¦';btn.disabled=true;
+    const btn=document.getElementById('btn-ub');btn.textContent='Guardando…';btn.disabled=true;
     const res=await api('POST',{action:'ubicar',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre});
-    if(res.ok){showToast('â Pieza ubicada','ok');S.view='dashboard';render();loadPiezas();}
-    else{showToast('Error: '+(res.error||''),'err');btn.textContent='â Confirmar ubicaciÃ³n';btn.disabled=false;}
+    if(res.ok){showToast('✓ Pieza ubicada','ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='✓ Confirmar ubicación';btn.disabled=false;}
   });
 }
 
-// ââ CAMBIAR UBICACIÃN ââ
+// ── CAMBIAR UBICACIÓN ──
 function renderCambiar(){
   const p=S.pieza;const cur=fullLoc(p)||'Sin ubicar';
   return`<div class="fscreen">
-<div class="fhdr"><div class="fback" id="fback">â</div><div style="flex:1;min-width:0"><div class="fhdr-title">ð Cambiar ubicaciÃ³n</div><div class="fhdr-sub">${esc(p.matricula)} Â· ${esc(p.descripcion)}</div></div></div>
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">📍 Cambiar ubicación</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
 <div class="fbody">
-<div class="info-box">ð UbicaciÃ³n actual: <strong>${esc(cur)}</strong>${p.usuario_colocacion?' Â· por '+esc(p.usuario_colocacion):''}</div>
+<div class="info-box">📍 Ubicación actual: <strong>${esc(cur)}</strong>${p.usuario_colocacion?' · por '+esc(p.usuario_colocacion):''}</div>
 <div class="fcard">
-<div class="fsec"><div class="fsec-lbl">1 Â· Nueva zona / AlmacÃ©n</div>
+<div class="fsec"><div class="fsec-lbl">1 · Nueva zona / Almacén</div>
 <div class="fg">${zonaSelect('f-zona')}</div>
-<div class="fg" id="otro-wrap" style="display:none"><div class="fl">Nombre de la zona</div><input class="fi" id="f-zona-libre" placeholder="Ej. AlmacÃ©n externoâ¦" autocapitalize="characters"></div>
+<div class="fg" id="otro-wrap" style="display:none"><div class="fl">Nombre de la zona</div><input class="fi" id="f-zona-libre" placeholder="Ej. Almacìn externo…" autocapitalize="characters"></div>
 </div>
-<div class="fsec"><div class="fsec-lbl">2 Â· EstanterÃ­a</div>
-<div class="fg"><div class="fl">NÂº o nombre de estanterÃ­a</div>
-<input class="fi" id="f-est" placeholder="Ej. 3, EST-A, Armario2â¦" autocapitalize="characters" autocorrect="off">
-<div class="fhint">Escribe el nÃºmero o nombre exacto de la estanterÃ­a</div></div>
+<div class="fsec"><div class="fsec-lbl">2 · Estantería</div>
+<div class="fg"><div class="fl">Nº o nombre de estantería</div>
+<input class="fi" id="f-est" placeholder="Ej. 3, EST-A, Armario2…" autocapitalize="characters" autocorrect="off">
+<div class="fhint">Escribe el número o nombre exacto de la estantería</div></div>
 </div>
-<div class="fsec"><div class="fsec-lbl">3 Â· Balda <span style="font-weight:400;color:#bbb">(opcional)</span></div>
-<div class="fg"><input class="fi" id="f-balda" placeholder="Ej. A, B, 1, 2â¦" autocapitalize="characters" autocorrect="off"></div>
+<div class="fsec"><div class="fsec-lbl">3 · Balda <span style="font-weight:400;color:#bbb">(opcional)</span></div>
+<div class="fg"><input class="fi" id="f-balda" placeholder="Ej. A, B, 1, 2…" autocapitalize="characters" autocorrect="off"></div>
 </div>
 <div class="fsec" style="background:#1a1a1a;border-radius:0 0 12px 12px">
 <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Vista previa</div>
-<div class="preview-box" id="f-prev" style="font-size:24px;background:#111;border-color:#333;color:#E24B4A">â</div>
+<div class="preview-box" id="f-prev" style="font-size:24px;background:#111;border-color:#333;color:#E24B4A">—</div>
 </div>
 </div>
-<div class="fg" style="padding:0 0 12px"><div class="fl" style="padding:0 12px">Motivo <span>(opcional)</span></div><input class="fi" style="margin:0 12px;width:calc(100% - 24px)" id="f-obs" placeholder="ReorganizaciÃ³n, mÃ¡s espacioâ¦"></div>
+<div class="fg" style="padding:0 0 12px"><div class="fl" style="padding:0 12px">Motivo <span>(opcional)</span></div><input class="fi" style="margin:0 12px;width:calc(100% - 24px)" id="f-obs" placeholder="Reorganización, más espacio…"></div>
 </div>
-<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-dark" id="btn-ca">ð Guardar nueva ubicaciÃ³n</button></div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-dark" id="btn-ca">📍 Guardar nueva ubicación</button></div>
 </div>`;}
 
 function bindCambiar(){
@@ -642,7 +642,7 @@ function bindCambiar(){
     const bal=document.getElementById('f-balda')?.value||'';
     const ow=document.getElementById('otro-wrap');if(ow)ow.style.display=zona==='OTRO'?'block':'none';
     const prev=buildLocStr(zona,zonaLibre,est,bal);
-    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'â';
+    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'—';
   };
   ['f-zona','f-zona-libre','f-est','f-balda'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
   document.getElementById('btn-ca')?.addEventListener('click',async()=>{
@@ -651,50 +651,50 @@ function bindCambiar(){
     const est=(document.getElementById('f-est')?.value||'').trim();
     const bal=(document.getElementById('f-balda')?.value||'').trim();
     const obs=document.getElementById('f-obs')?.value||'';
-    if(!est){showToast('Indica la nueva estanterÃ­a','err');return;}
+    if(!est){showToast('Indica la nueva estantería','err');return;}
     const estanteria=buildLocStr(zona,zonaLibre,est,bal);
-    const btn=document.getElementById('btn-ca');btn.textContent='Guardandoâ¦';btn.disabled=true;
+    const btn=document.getElementById('btn-ca');btn.textContent='Guardando…';btn.disabled=true;
     const res=await api('POST',{action:'cambiarUbicacion',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre});
-    if(res.ok){showToast('â UbicaciÃ³n actualizada','ok');S.view='dashboard';render();loadPiezas();}
-    else{showToast('Error: '+(res.error||''),'err');btn.textContent='ð Guardar nueva ubicaciÃ³n';btn.disabled=false;}
+    if(res.ok){showToast('✓ Ubicación actualizada','ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='📍 Guardar nueva ubicación';btn.disabled=false;}
   });
 }
 
-// ââ RECAMBIO FÃCIL VIEW ââ
+// ── RECAMBIO FÁCIL VIEW ──
 function renderRFView(){
   const rfList=S.piezas.filter(p=>isRF(p));
   return`<div class="fscreen">
-<div class="fhdr"><div class="fback" id="fback">â</div><div style="flex:1;min-width:0"><div class="fhdr-title">â¡ Recambio FÃ¡cil</div><div class="fhdr-sub">${rfList.length} pieza${rfList.length!==1?'s':''} para venta directa</div></div></div>
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">⚡ Recambio Fácil</div><div class="fhdr-sub">${rfList.length} pieza${rfList.length!==1?'s':''} para venta directa</div></div></div>
 <div class="fbody" style="padding:12px">
-<div class="rf-info-box"><div class="rf-info-title">â¡ Stock para venta directa</div><div class="rf-info-sub">Piezas que no se montarÃ¡n en ningÃºn coche. Se ubican en zona Z para evitar stock muerto y se publican para venta.</div></div>
-${rfList.length?rfList.map(p=>renderCard(p)).join(''):'<div class="empty"><div class="empty-icon">â¡</div><div class="empty-msg">No hay piezas en Recambio FÃ¡cil</div></div>'}
+<div class="rf-info-box"><div class="rf-info-title">⚡ Stock para venta directa</div><div class="rf-info-sub">Piezas que no se montarán en ningún coche. Se ubican en zona Z para evitar stock muerto y se publican para venta.</div></div>
+${rfList.length?rfList.map(p=>renderCard(p)).join(''):'<div class="empty"><div class="empty-icon">⚡</div><div class="empty-msg">No hay piezas en Recambio Fácil</div></div>'}
 </div></div>`;}
 function bindRFView(){document.getElementById('fback')?.addEventListener('click',()=>{S.view='dashboard';render();});bindPieceActions();}
 
-// ââ RECAMBIO FÃCIL MARK ââ
+// ── RECAMBIO FÁCIL MARK ──
 function renderRFMark(){
   const p=S.pieza;
   return`<div class="fscreen">
-<div class="fhdr"><div class="fback" id="fback">â</div><div style="flex:1;min-width:0"><div class="fhdr-title">â¡ Marcar Recambio FÃ¡cil</div><div class="fhdr-sub">${esc(p.matricula)} Â· ${esc(p.descripcion)}</div></div></div>
+<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">⚡ Marcar Recambio Fácil</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
 <div class="fbody">
-<div class="rf-info-box"><div class="rf-info-title">â¡ Â¿QuÃ© es Recambio FÃ¡cil?</div><div class="rf-info-sub">Esta pieza NO se montarÃ¡ en el coche. Se publicarÃ¡ para venta directa y quedarÃ¡ ubicada en la zona Z del almacÃ©n.</div></div>
+<div class="rf-info-box"><div class="rf-info-title">⚡ ¿Qué es Recambio Fácil?</div><div class="rf-info-sub">Esta pieza NO se montará en el coche. Se publicará para venta directa y quedará ubicada en la zona Z del almacén.</div></div>
 <div class="fcard">
 <div class="fsec"><div class="fsec-lbl">Datos de la pieza</div>
-<div class="fg"><div class="fl">DescripciÃ³n</div><div style="font-size:14px;font-weight:700;padding:8px 0">${esc(p.descripcion)}</div></div>
+<div class="fg"><div class="fl">Descripción</div><div style="font-size:14px;font-weight:700;padding:8px 0">${esc(p.descripcion)}</div></div>
 <div class="frow">
-<div class="fg"><div class="fl">MatrÃ­cula</div><div style="font-family:monospace;font-weight:800;padding:8px 0">${esc(p.matricula||'â')}</div></div>
-<div class="fg"><div class="fl">Marca / Modelo</div><div style="font-size:13px;padding:8px 0">${esc(p.marca_modelo||'â')}</div></div>
+<div class="fg"><div class="fl">Matrícula</div><div style="font-family:monospace;font-weight:800;padding:8px 0">${esc(p.matricula||'—')}</div></div>
+<div class="fg"><div class="fl">Marca / Modelo</div><div style="font-size:13px;padding:8px 0">${esc(p.marca_modelo||'—')}</div></div>
 </div></div>
 <div class="fsec"><div class="fsec-lbl">Slot en zona Z</div>
 <div class="frow">
-<div class="fg"><div class="fl">NÂº slot <span>(opcional)</span></div><input class="fi" id="rf-slot" type="number" inputmode="numeric" placeholder="1, 2, 3â¦"><div class="fhint">VacÃ­o = asignado automÃ¡ticamente</div></div>
-<div class="fg"><div class="fl" style="visibility:hidden">.</div><div class="preview-box" id="rf-prev" style="margin-top:0">Zâ</div></div>
+<div class="fg"><div class="fl">Nº slot <span>(opcional)</span></div><input class="fi" id="rf-slot" type="number" inputmode="numeric" placeholder="1, 2, 3…"><div class="fhint">Vacío = asignado automáticamente</div></div>
+<div class="fg"><div class="fl" style="visibility:hidden">.</div><div class="preview-box" id="rf-prev" style="margin-top:0">Z—</div></div>
 </div></div>
 <div class="fsec">
-<div class="fg"><div class="fl">Notas <span>(precio, estadoâ¦)</span></div><input class="fi" id="rf-obs" placeholder="Precio venta, estado de la piezaâ¦"></div>
+<div class="fg"><div class="fl">Notas <span>(precio, estado…)</span></div><input class="fi" id="rf-obs" placeholder="Precio venta, estado de la pieza…"></div>
 </div></div>
 </div>
-<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-rf" id="btn-rf">â¡ Confirmar Recambio FÃ¡cil</button></div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-rf" id="btn-rf">⚡ Confirmar Recambio Fácil</button></div>
 </div>`;}
 
 function bindRFMark(){
@@ -703,7 +703,7 @@ function bindRFMark(){
   document.getElementById('fback2')?.addEventListener('click',back);
   document.getElementById('rf-slot')?.addEventListener('input',()=>{
     const s=document.getElementById('rf-slot')?.value||'';
-    const el=document.getElementById('rf-prev');if(el)el.textContent='Z'+(s?'-'+s:'â');
+    const el=document.getElementById('rf-prev');if(el)el.textContent='Z'+(s?'-'+s:'—');
   });
   document.getElementById('btn-rf')?.addEventListener('click',async()=>{
     let slot=document.getElementById('rf-slot')?.value||'';
@@ -712,35 +712,35 @@ function bindRFMark(){
       const used=S.piezas.filter(p=>isRF(p)).map(p=>parseInt(p.estanteria||p.balda||'0')).filter(n=>!isNaN(n)&&n>0);
       slot=String(used.length>0?Math.max(...used)+1:1);
     }
-    const btn=document.getElementById('btn-rf');btn.textContent='Guardandoâ¦';btn.disabled=true;
-    const obsAlm=['RECAMBIO FACIL',obs].filter(Boolean).join(' Â· ');
+    const btn=document.getElementById('btn-rf');btn.textContent='Guardando…';btn.disabled=true;
+    const obsAlm=['RECAMBIO FACIL',obs].filter(Boolean).join(' · ');
     const res=await api('POST',{action:'ubicar',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria:'Z',balda:slot,obs_almacen:obsAlm,usuario:S.user.nombre});
-    if(res.ok){showToast('â¡ Recambio FÃ¡cil Â· Slot Z-'+slot,'ok');S.view='dashboard';render();loadPiezas();}
-    else{showToast('Error: '+(res.error||''),'err');btn.textContent='â¡ Confirmar Recambio FÃ¡cil';btn.disabled=false;}
+    if(res.ok){showToast('⚡ Recambio Fácil · Slot Z-'+slot,'ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='⚡ Confirmar Recambio Fácil';btn.disabled=false;}
   });
 }
 
-// ââ MODAL ââ
+// ── MODAL ──
 function openModal(){
   const p=S.pieza;if(!p||!S.modal)return;
   let title,sub,extra='',confTxt,confStyle;
   if(S.modal==='montar'){
-    title='ð§ Confirmar montaje';
-    sub=`Â¿Confirmas que <strong>${esc(p.descripcion)}</strong> de <strong>${esc(p.matricula)}</strong> ha sido montada?`;
-    confTxt='â SÃ­, confirmar montaje';confStyle='background:#1a1a1a;color:#fff';
+    title='🔧 Confirmar montaje';
+    sub=`¿Confirmas que <strong>${esc(p.descripcion)}</strong> de <strong>${esc(p.matricula)}</strong> ha sido montada?`;
+    confTxt='✓ Sí, confirmar montaje';confStyle='background:#1a1a1a;color:#fff';
   }else if(S.modal==='devolver'){
-    title='â© Devolver pieza';
-    sub=`<strong>${esc(p.descripcion)}</strong> Â· ${esc(p.matricula)}`;
-    extra=`<div style="margin:12px 0"><div class="fl" style="margin-bottom:5px;font-size:12px;font-weight:700;color:#555">Motivo <span style="font-weight:400;color:#aaa">(opcional)</span></div><input class="fi" id="modal-obs" placeholder="Pieza incorrecta, daÃ±adaâ¦"></div>`;
-    confTxt='Confirmar devoluciÃ³n';confStyle='background:#FFF3E0;color:#e65100;border:1px solid #FFCC80';
+    title='↩ Devolver pieza';
+    sub=`<strong>${esc(p.descripcion)}</strong> · ${esc(p.matricula)}`;
+    extra=`<div style="margin:12px 0"><div class="fl" style="margin-bottom:5px;font-size:12px;font-weight:700;color:#555">Motivo <span style="font-weight:400;color:#aaa">(opcional)</span></div><input class="fi" id="modal-obs" placeholder="Pieza incorrecta, dañada…"></div>`;
+    confTxt='Confirmar devolución';confStyle='background:#FFF3E0;color:#e65100;border:1px solid #FFCC80';
   }else if(S.modal==='borrar'){
-    title='ð Borrar pieza';
-    sub=`Â¿Seguro que quieres eliminar <strong>${esc(p.descripcion)}</strong> de <strong>${esc(p.matricula)}</strong>? No se puede deshacer.`;
-    confTxt='SÃ­, borrar definitivamente';confStyle='background:#c62828;color:#fff';
+    title='🗑 Borrar pieza';
+    sub=`¿Seguro que quieres eliminar <strong>${esc(p.descripcion)}</strong> de <strong>${esc(p.matricula)}</strong>? No se puede deshacer.`;
+    confTxt='Sí, borrar definitivamente';confStyle='background:#c62828;color:#fff';
   }else if(S.modal==='incidencia'){
-    title='â  Registrar incidencia';
-    sub=`${esc(p.descripcion)} Â· ${esc(p.matricula)}`;
-    extra=`<div style="margin:12px 0"><div class="fl" style="margin-bottom:5px;font-size:12px;font-weight:700;color:#555">DescripciÃ³n de la incidencia</div><input class="fi" id="modal-obs" placeholder="Pieza daÃ±ada, falta referenciaâ¦"></div>`;
+    title='⚠ Registrar incidencia';
+    sub=`${esc(p.descripcion)} · ${esc(p.matricula)}`;
+    extra=`<div style="margin:12px 0"><div class="fl" style="margin-bottom:5px;font-size:12px;font-weight:700;color:#555">Descripción de la incidencia</div><input class="fi" id="modal-obs" placeholder="Pieza dañada, falta referencia…"></div>`;
     confTxt='Guardar incidencia';confStyle='background:#f57f17;color:#fff';
   }
   const ov=document.createElement('div');
@@ -754,25 +754,25 @@ function openModal(){
 function closeModal(){const el=document.getElementById('modal-overlay');if(el)el.remove();S.modal=null;}
 async function doModal(){
   const p=S.pieza;if(!p)return;
-  const btn=document.getElementById('modal-ok');if(btn){btn.textContent='Procesandoâ¦';btn.disabled=true;}
+  const btn=document.getElementById('modal-ok');if(btn){btn.textContent='Procesando…';btn.disabled=true;}
   let res;
   if(S.modal==='montar'){
     res=await api('POST',{action:'montar',_row:p._row,taller:pTaller(p),usuario:S.user.nombre});
-    if(res.ok)showToast('â Montaje registrado','ok');
+    if(res.ok)showToast('✓ Montaje registrado','ok');
   }else if(S.modal==='devolver'){
     const obs=document.getElementById('modal-obs')?.value||'';
     res=await api('POST',{action:'devolver',_row:p._row,taller:pTaller(p),usuario:S.user.nombre,obs_almacen:obs});
-    if(res.ok)showToast('â© DevoluciÃ³n registrada','ok');
+    if(res.ok)showToast('↩ Devolución registrada','ok');
   }else if(S.modal==='borrar'){
     res=await api('POST',{action:'borrar',_row:p._row,taller:pTaller(p),codigo:S.user.codigo||S.user.nombre});
-    if(res.ok)showToast('ð Pieza eliminada','neutral');
+    if(res.ok)showToast('🗑 Pieza eliminada','neutral');
   }else if(S.modal==='incidencia'){
     const obs=document.getElementById('modal-obs')?.value||'';
     if(!obs.trim()){showToast('Describe la incidencia','err');if(btn){btn.textContent='Guardar incidencia';btn.disabled=false;}return;}
     res=await api('POST',{action:'setIncidencia',_row:p._row,taller:pTaller(p),incidencia:obs,usuario:S.user.nombre});
-    if(res.ok)showToast('â  Incidencia registrada','ok');
+    if(res.ok)showToast('⚠ Incidencia registrada','ok');
   }
-  if(res&&!res.ok){showToast('Error: '+(res.error||'IntÃ©ntalo de nuevo'),'err');if(btn){btn.disabled=false;}return;}
+  if(res&&!res.ok){showToast('Error: '+(res.error||'Inténtalo de nuevo'),'err');if(btn){btn.disabled=false;}return;}
   closeModal();
   if(S.taller==='AMBOS')loadBoth();else loadPiezas();
 }
