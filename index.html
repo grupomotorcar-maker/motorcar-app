@@ -135,6 +135,7 @@ button,input,select,textarea{font-family:inherit;font-size:14px}
 .fg:last-child{margin-bottom:0}
 .fl{font-size:12px;font-weight:700;color:#555;margin-bottom:5px}
 .fl span{font-weight:400;color:#aaa}
+.fhint{font-size:11px;color:#aaa;margin-top:5px;padding-left:2px}
 .fi{width:100%;border:1.5px solid #ddd;border-radius:9px;padding:11px 12px;font-size:16px;color:#111;background:#fff;outline:none;transition:border-color .15s;-webkit-appearance:none}
 .fi:focus{border-color:#E24B4A}
 .fsel{width:100%;border:1.5px solid #ddd;border-radius:9px;padding:11px 12px;font-size:16px;color:#111;background:#fff;outline:none;-webkit-appearance:none;cursor:pointer}
@@ -514,31 +515,50 @@ function bindPieceActions(){
   });
 }
 
-// ── UBICAR ──
+// ââ UBICAR ââ
+function zonaSelect(id){
+  return`<select class="fsel" id="${id}">
+<optgroup label="Joan Motorcar">
+  <option value="TALLER">ð§ Taller JM</option>
+  <option value="CAMPA">ð Campa JM</option>
+</optgroup>
+<optgroup label="Otros">
+  <option value="Z">â¡ Z Â· Recambio FÃ¡cil</option>
+  <option value="OTRO">âï¸ Otroâ¦</option>
+</optgroup>
+</select>`;}
+
+function buildLocStr(zona,zonaLibre,est,bal){
+  const z=zona==='OTRO'?(zonaLibre||'').trim().toUpperCase():zona;
+  return [z,est.trim(),bal.trim()].filter(Boolean).join('-');
+}
+
 function renderUbicar(){
   const p=S.pieza;
   return`<div class="fscreen">
-<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">Ubicar pieza</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
+<div class="fhdr"><div class="fback" id="fback">â</div><div style="flex:1;min-width:0"><div class="fhdr-title">ð¦ Ubicar pieza</div><div class="fhdr-sub">${esc(p.matricula)} Â· ${esc(p.descripcion)}</div></div></div>
 <div class="fbody">
 <div class="fcard">
-<div class="fsec"><div class="fsec-lbl">Ubicación en almacén</div>
-<div class="frow">
-<div class="fg"><div class="fl">Sección / Almacén</div>
-<select class="fsel" id="f-sec"><option value="COCHE">COCHE</option><option value="DANI">DANI</option><option value="PATIO">PATIO</option><option value="ARMARIO">ARMARIO</option><option value="TALLER">TALLER</option><option value="Z">Z · Rec.Fácil</option><option value="LIBRE">Otro…</option></select></div>
-<div class="fg"><div class="fl">Nº estantería</div><input class="fi" id="f-est" type="number" inputmode="numeric" placeholder="1, 2, 3…"></div>
+<div class="fsec"><div class="fsec-lbl">1 Â· Zona / AlmacÃ©n</div>
+<div class="fg">${zonaSelect('f-zona')}</div>
+<div class="fg" id="otro-wrap" style="display:none"><div class="fl">Nombre de la zona</div><input class="fi" id="f-zona-libre" placeholder="Ej. AlmacÃ©n externoâ¦" autocapitalize="characters"></div>
 </div>
-<div class="frow">
-<div class="fg"><div class="fl">Balda <span>(opcional)</span></div><input class="fi" id="f-balda" placeholder="A, B, 1…"></div>
-<div class="fg" id="libre-wrap" style="display:none"><div class="fl">Nombre libre</div><input class="fi" id="f-libre" placeholder="Ej. Caja Kia"></div>
+<div class="fsec"><div class="fsec-lbl">2 Â· EstanterÃ­a</div>
+<div class="fg"><div class="fl">NÂz o nombre de estanterÃ­a</div>
+<input class="fi" id="f-est" placeholder="Ej. 3, EST-A, Armario2â¦" autocapitalize="characters" autocorrect="off">
+<div class="fhint">Escribe el nÃºmero o nombre exacto de la estanterÃ­a</div></div>
 </div>
-<div class="preview-box" id="f-prev">—</div>
+<div class="fsec"><div class="fsec-lbl">3 Â· Balda <span style="font-weight:400;color:#bbb">(opcional)</span></div>
+<div class="fg"><input class="fi" id="f-balda" placeholder="Ej. A, B, 1, 2â¦" autocapitalize="characters" autocorrect="off"></div>
 </div>
-<div class="fsec"><div class="fsec-lbl">Notas</div>
-<div class="fg"><div class="fl">Observaciones almacén</div><input class="fi" id="f-obs" placeholder="Notas sobre la ubicación…"></div>
-</div></div>
-<div class="info-box">ℹ️ El código resultante quedará registrado como ubicación de la pieza.</div>
+<div class="fsec" style="background:#1a1a1a;border-radius:0 0 12px 12px">
+<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Vista previa de ubicaciÃ³n</div>
+<div class="preview-box" id="f-prev" style="font-size:24px;background:#111;border-color:#333;color:#E24B4A">â</div>
 </div>
-<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-red" id="btn-ub">✓ Confirmar ubicación</button></div>
+</div>
+<div class="fg" style="padding:0 0 12px"><div class="fl" style="padding:0 12px">Notas <span>(opcional)</span></div><input class="fi" style="margin:0 12px;width:calc(100% - 24px)" id="f-obs" placeholder="Observaciones sobre la ubicaciÃ³nâ¦"></div>
+</div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-red" id="btn-ub">â Confirmar ubicaciÃ³n</button></div>
 </div>`;}
 
 function bindUbicar(){
@@ -546,55 +566,57 @@ function bindUbicar(){
   document.getElementById('fback')?.addEventListener('click',back);
   document.getElementById('fback2')?.addEventListener('click',back);
   const upd=()=>{
-    const sec=document.getElementById('f-sec')?.value||'';
+    const zona=document.getElementById('f-zona')?.value||'';
+    const zonaLibre=document.getElementById('f-zona-libre')?.value||'';
     const est=document.getElementById('f-est')?.value||'';
     const bal=document.getElementById('f-balda')?.value||'';
-    const lib=document.getElementById('f-libre')?.value||'';
-    const lw=document.getElementById('libre-wrap');if(lw)lw.style.display=sec==='LIBRE'?'block':'none';
-    const prev=sec==='LIBRE'?lib:[sec+(est||''),bal].filter(Boolean).join('-');
-    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'—';
+    const ow=document.getElementById('otro-wrap');if(ow)ow.style.display=zona==='OTRO'?'block':'none';
+    const prev=buildLocStr(zona,zonaLibre,est,bal);
+    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'â';
   };
-  ['f-sec','f-est','f-balda','f-libre'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
+  ['f-zona','f-zona-libre','f-est','f-balda'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
   document.getElementById('btn-ub')?.addEventListener('click',async()=>{
-    const sec=document.getElementById('f-sec')?.value||'';
-    const est=document.getElementById('f-est')?.value||'';
-    const bal=document.getElementById('f-balda')?.value||'';
+    const zona=document.getElementById('f-zona')?.value||'';
+    const zonaLibre=document.getElementById('f-zona-libre')?.value||'';
+    const est=(document.getElementById('f-est')?.value||'').trim();
+    const bal=(document.getElementById('f-balda')?.value||'').trim();
     const obs=document.getElementById('f-obs')?.value||'';
-    const lib=document.getElementById('f-libre')?.value||'';
-    let estanteria=sec==='LIBRE'?lib.trim():sec+(est||'');
-    if(!estanteria||estanteria===sec){showToast('Indica el número de estantería','err');return;}
-    const btn=document.getElementById('btn-ub');btn.textContent='Guardando…';btn.disabled=true;
+    if(!est){showToast('Indica la estanterÃ­a','err');return;}
+    const estanteria=buildLocStr(zona,zonaLibre,est,bal);
+    const btn=document.getElementById('btn-ub');btn.textContent='Guardandoâ¦';btn.disabled=true;
     const res=await api('POST',{action:'ubicar',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre});
-    if(res.ok){showToast('✓ Pieza ubicada','ok');S.view='dashboard';render();loadPiezas();}
-    else{showToast('Error: '+(res.error||''),'err');btn.textContent='✓ Confirmar ubicación';btn.disabled=false;}
+    if(res.ok){showToast('â Pieza ubicada','ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='â Confirmar ubicaciÃ³n';btn.disabled=false;}
   });
 }
-
-// ── CAMBIAR UBICACIÓN ──
+// ââ CAMBIAR UBICACIÃN ââ
 function renderCambiar(){
-  const p=S.pieza;const cur=p.almacen||p.ubicacion||p.estanteria||'—';
+  const p=S.pieza;const cur=fullLoc(p)||'Sin ubicar';
   return`<div class="fscreen">
-<div class="fhdr"><div class="fback" id="fback">←</div><div style="flex:1;min-width:0"><div class="fhdr-title">📍 Cambiar ubicación</div><div class="fhdr-sub">${esc(p.matricula)} · ${esc(p.descripcion)}</div></div></div>
+<div class="fhdr"><div class="fback" id="fback">â</div><div style="flex:1;min-width:0"><div class="fhdr-title">ð Cambiar ubicaciÃ³n</div><div class="fhdr-sub">${esc(p.matricula)} Â· ${esc(p.descripcion)}</div></div></div>
 <div class="fbody">
-<div class="info-box">📍 Ubicación actual: <strong>${esc(cur)}</strong>${p.usuario_colocacion?' · por '+esc(p.usuario_colocacion):''}</div>
+<div class="info-box">ð UbicaciÃ³n actual: <strong>${esc(cur)}</strong>${p.usuario_colocacion?' Â· por '+esc(p.usuario_colocacion):''}</div>
 <div class="fcard">
-<div class="fsec"><div class="fsec-lbl">Nueva ubicación</div>
-<div class="frow">
-<div class="fg"><div class="fl">Sección</div>
-<select class="fsel" id="f-sec"><option value="COCHE">COCHE</option><option value="DANI">DANI</option><option value="PATIO">PATIO</option><option value="ARMARIO">ARMARIO</option><option value="TALLER">TALLER</option><option value="Z">Z · Rec.Fácil</option><option value="LIBRE">Otro…</option></select></div>
-<div class="fg"><div class="fl">Nº estantería</div><input class="fi" id="f-est" type="number" inputmode="numeric" placeholder="1, 2…"></div>
+<div class="fsec"><div class="fsec-lbl">1 Â· Nueva zona / AlmacÃ©n</div>
+<div class="fg">${zonaSelect('f-zona')}</div>
+<div class="fg" id="otro-wrap" style="display:none"><div class="fl">Nombre de la zona</div><input class="fi" id="f-zona-libre" placeholder="Ej. AlmacÃ©n externoâ¦" autocapitalize="characters"></div>
 </div>
-<div class="frow">
-<div class="fg"><div class="fl">Balda <span>(opcional)</span></div><input class="fi" id="f-balda" placeholder="A, B…"></div>
-<div class="fg" id="libre-wrap" style="display:none"><div class="fl">Nombre libre</div><input class="fi" id="f-libre" placeholder="Ej. Zona ext."></div>
+<div class="fsec"><div class="fsec-lbl">2 Â· EstanterÃ­a</div>
+<div class="fg"><div class="fl">NÂº o nombre de estanterÃ­a</div>
+<input class="fi" id="f-est" placeholder="Ej. 3, EST-A, Armario2â¦" autocapitalize="characters" autocorrect="off">
+<div class="fhint">Escribe el nÃºmero o nombre exacto de la estanterÃ­a</div></div>
 </div>
-<div class="preview-box" id="f-prev">—</div>
+<div class="fsec"><div class="fsec-lbl">3 Â· Balda <span style="font-weight:400;color:#bbb">(opcional)</span></div>
+<div class="fg"><input class="fi" id="f-balda" placeholder="Ej. A, B, 1, 2â¦" autocapitalize="characters" autocorrect="off"></div>
 </div>
-<div class="fsec">
-<div class="fg"><div class="fl">Motivo <span>(opcional)</span></div><input class="fi" id="f-obs" placeholder="Reorganización, más espacio…"></div>
-</div></div>
+<div class="fsec" style="background:#1a1a1a;border-radius:0 0 12px 12px">
+<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Vista previa</div>
+<div class="preview-box" id="f-prev" style="font-size:24px;background:#111;border-color:#333;color:#E24B4A">â</div>
 </div>
-<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-dark" id="btn-ca">📍 Guardar nueva ubicación</button></div>
+</div>
+<div class="fg" style="padding:0 0 12px"><div class="fl" style="padding:0 12px">Motivo <span>(opcional)</span></div><input class="fi" style="margin:0 12px;width:calc(100% - 24px)" id="f-obs" placeholder="ReorganizaciÃ³n, mÃ¡s espacioâ¦"></div>
+</div>
+<div class="ffooter"><button class="fbtn-cancel" id="fback2">Cancelar</button><button class="fbtn-submit fbtn-dark" id="btn-ca">ð Guardar nueva ubicaciÃ³n</button></div>
 </div>`;}
 
 function bindCambiar(){
@@ -602,30 +624,29 @@ function bindCambiar(){
   document.getElementById('fback')?.addEventListener('click',back);
   document.getElementById('fback2')?.addEventListener('click',back);
   const upd=()=>{
-    const sec=document.getElementById('f-sec')?.value||'';
+    const zona=document.getElementById('f-zona')?.value||'';
+    const zonaLibre=document.getElementById('f-zona-libre')?.value||'';
     const est=document.getElementById('f-est')?.value||'';
     const bal=document.getElementById('f-balda')?.value||'';
-    const lib=document.getElementById('f-libre')?.value||'';
-    const lw=document.getElementById('libre-wrap');if(lw)lw.style.display=sec==='LIBRE'?'block':'none';
-    const prev=sec==='LIBRE'?lib:[sec+(est||''),bal].filter(Boolean).join('-');
-    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'—';
+    const ow=document.getElementById('otro-wrap');if(ow)ow.style.display=zona==='OTRO'?'block':'none';
+    const prev=buildLocStr(zona,zonaLibre,est,bal);
+    const el=document.getElementById('f-prev');if(el)el.textContent=prev||'â';
   };
-  ['f-sec','f-est','f-balda','f-libre'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
+  ['f-zona','f-zona-libre','f-est','f-balda'].forEach(id=>{document.getElementById(id)?.addEventListener('input',upd);document.getElementById(id)?.addEventListener('change',upd);});
   document.getElementById('btn-ca')?.addEventListener('click',async()=>{
-    const sec=document.getElementById('f-sec')?.value||'';
-    const est=document.getElementById('f-est')?.value||'';
-    const bal=document.getElementById('f-balda')?.value||'';
+    const zona=document.getElementById('f-zona')?.value||'';
+    const zonaLibre=document.getElementById('f-zona-libre')?.value||'';
+    const est=(document.getElementById('f-est')?.value||'').trim();
+    const bal=(document.getElementById('f-balda')?.value||'').trim();
     const obs=document.getElementById('f-obs')?.value||'';
-    const lib=document.getElementById('f-libre')?.value||'';
-    let estanteria=sec==='LIBRE'?lib.trim():sec+(est||'');
-    if(!estanteria||estanteria===sec){showToast('Indica la nueva estantería','err');return;}
-    const btn=document.getElementById('btn-ca');btn.textContent='Guardando…';btn.disabled=true;
+    if(!est){showToast('Indica la nueva estanterÃ­a','err');return;}
+    const estanteria=buildLocStr(zona,zonaLibre,est,bal);
+    const btn=document.getElementById('btn-ca');btn.textContent='Guardandoâ¦';btn.disabled=true;
     const res=await api('POST',{action:'cambiarUbicacion',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre});
-    if(res.ok){showToast('✓ Ubicación actualizada','ok');S.view='dashboard';render();loadPiezas();}
-    else{showToast('Error: '+(res.error||''),'err');btn.textContent='📍 Guardar nueva ubicación';btn.disabled=false;}
+    if(res.ok){showToast('â UbicaciÃ³n actualizada','ok');S.view='dashboard';render();loadPiezas();}
+    else{showToast('Error: '+(res.error||''),'err');btn.textContent='ð Guardar nueva ubicaciÃ³n';btn.disabled=false;}
   });
 }
-
 // ── RECAMBIO FÁCIL VIEW ──
 function renderRFView(){
   const rfList=S.piezas.filter(p=>isRF(p));
