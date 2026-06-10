@@ -7,11 +7,11 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#111;font-size:14px;min-height:100vh}
-button,input,select,textarea{font-family:inherit;font-size:14px}
+button,input,select,textarea{font-family:ihnherit;font-size:14px}
 .hdr{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .hdr-logo{display:flex;align-items:center;gap:10px}
 .hdr-icon{width:36px;height:36px;background:#E24B4A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;flex-shrink:0}
-.hdr-title{font-size:15px;font-weight:700;color:#fff;line-height:1.2}
+.hdr-title{font-size:15px;font-weight:700;color:#fff;line-height:1.2}h
 .hdr-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
 .hdr-right{display:flex;align-items:center;gap:8px}
 .hdr-user{background:rgba(255,255,255,.1);border-radius:16px;padding:4px 10px;font-size:11px;color:#fff;white-space:nowrap}
@@ -181,9 +181,9 @@ const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxRryThU_ZnqOjqLMDebf7
 const S={view:'login',user:null,taller:'JM',piezas:[],loading:false,filter:'all',search:'',pieza:null,modal:null,pin:''};
 let toastT=null;
 const _SK='mc_ses';
-function saveSession(){try{sessionStorage.setItem(_SK,JSON.stringify({user:S.user,taller:S.taller}));}catch(e){}}
-function clearSession(){try{sessionStorage.removeItem(_SK);}catch(e){}}
-function loadSession(){try{const d=JSON.parse(sessionStorage.getItem(_SK)||'null');if(d&&d.user){S.user=d.user;S.taller=d.taller||'JM';S.view='dashboard';S.filter='all';S.search='';return true;}}catch(e){}return false;}
+function saveSession(){try{localStorage.setItem(_SK,JSON.stringify({user:S.user,taller:S.taller}));}catch(e){}}
+function clearSession(){try{localStorage.removeItem(_SK);}catch(e){}}
+function loadSession(){try{const d=JSON.parse(localStorage.getItem(_SK)||'null');if(d&&d.user){S.user=d.user;S.taller=d.taller||'JM';S.view='dashboard';S.filter='all';S.search='';return true;}}catch(e){}return false;}
 
 function showToast(msg,type='neutral'){
   const el=document.getElementById('toast');
