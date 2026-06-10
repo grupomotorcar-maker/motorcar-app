@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Motorcar APP</title>
+<title>APP Albaranes</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#111;font-size:14px;min-height:100vh}
@@ -16,6 +16,9 @@ button,input,select,textarea{font-family:inherit;font-size:14px}
 .hdr-right{display:flex;align-items:center;gap:8px}
 .hdr-user{background:rgba(255,255,255,.1);border-radius:16px;padding:4px 10px;font-size:11px;color:#fff;white-space:nowrap}
 .btn-logout{background:rgba(226,75,74,.15);border:1px solid rgba(226,75,74,.3);border-radius:8px;padding:5px 10px;font-size:11px;color:#E24B4A;cursor:pointer;white-space:nowrap}
+.btn-refresh{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer;color:#fff;transition:transform .15s;flex-shrink:0}
+.btn-refresh:active{transform:scale(.9)}
+.btn-refresh.spin{animation:spin .7s linear infinite;display:inline-block}
 .tabs{display:flex;background:#1a1a1a;padding:0 12px;border-bottom:2px solid #111}
 .tab{padding:10px 14px;font-size:13px;font-weight:500;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
 .tab.active{color:#fff;border-bottom-color:#E24B4A}
@@ -177,6 +180,10 @@ button,input,select,textarea{font-family:inherit;font-size:14px}
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxRryThU_ZnqOjqLMDebf7v0NyO7apDcY0v7U-oe0qy9MUOp-Kq8f0eBy8YWQLpVjI/exec';
 const S={view:'login',user:null,taller:'JM',piezas:[],loading:false,filter:'all',search:'',pieza:null,modal:null,pin:''};
 let toastT=null;
+const _SK='mc_ses';
+function saveSession(){try{sessionStorage.setItem(_SK,JSON.stringify({user:S.user,taller:S.taller}));}catch(e){}}
+function clearSession(){try{sessionStorage.removeItem(_SK);}catch(e){}}
+function loadSession(){try{const d=JSON.parse(sessionStorage.getItem(_SK)||'null');if(d&&d.user){S.user=d.user;S.taller=d.taller||'JM';S.view='dashboard';S.filter='all';S.search='';return true;}}catch(e){}return false;}
 
 function showToast(msg,type='neutral'){
   const el=document.getElementById('toast');
@@ -314,7 +321,7 @@ function renderLogin(){
   const dots=n>0?Array.from({length:Math.max(n,4)},(_,i)=>`<div class="pdot${i<n?' on':''}"></div>`).join(''):'';
   return`<div class="login-screen">
 <div class="login-logo">M</div>
-<div class="login-title">Motorcar APP</div>
+<div class="login-title">APP Albaranes</div>
 <div class="login-sub">Control de recambios · Grupo Motorcar</div>
 <div class="pin-display">${n>0?`<div class="pin-dots-row">${dots}</div>`:'<span class="pin-placeholder">Introduce tu código PIN</span>'}</div>
 <div class="numpad">
@@ -341,7 +348,7 @@ async function autoTryLogin(){
   if(S.pin!==pin){if(err)err.textContent='';return;} // user typed more while waiting
   if(res.ok&&res.user){
     S.user=res.user;S.taller=res.user.taller||'JM';S.pin='';S.view='dashboard';S.filter='all';S.search='';
-    render();
+    saveSession();render();
     if(S.taller==='AMBOS')loadBoth();else loadPiezas();
   }else{
     if(err)err.textContent='';
@@ -364,7 +371,7 @@ async function doLogin(){
   const res=await api('GET',{action:'login',codigo:S.pin});
   if(res.ok&&res.user){
     S.user=res.user;S.taller=res.user.taller||'JM';S.pin='';S.view='dashboard';S.filter='all';S.search='';
-    render();
+    saveSession();render();
     if(S.taller==='AMBOS')loadBoth();else loadPiezas();
   }else{
     if(err)err.textContent='❌ Código incorrecto';
@@ -377,8 +384,8 @@ function renderDashboard(){
   const k=kpi();const isCeo=S.user?.nivel<=1;
   return`<div style="min-height:100vh;background:#f0f0f0;padding-bottom:20px">
 <div class="hdr">
-  <div class="hdr-logo"><div class="hdr-icon">M</div><div><div class="hdr-title">Motorcar APP</div><div class="hdr-sub">${esc(S.user?.nombre)} · ${esc(S.user?.rol)}</div></div></div>
-  <div class="hdr-right"><div class="hdr-user">${S.taller==='AMBOS'?'JM+RM':S.taller}</div><button class="btn-logout" id="btn-logout">Salir</button></div>
+  <div class="hdr-logo"><div class="hdr-icon">M</div><div><div class="hdr-title">APP Albaranes</div><div class="hdr-sub">${esc(S.user?.nombre)} · ${esc(S.user?.rol)}</div></div></div>
+  <div class="hdr-right"><div class="hdr-user">${S.taller==='AMBOS'?'JM+RM':S.taller}</div><button class="btn-refresh" id="btn-refresh" title="Actualizar">🔄</button><button class="btn-logout" id="btn-logout">Salir</button></div>
 </div>
 ${isCeo?`<div class="tabs">
 <div class="tab${S.taller==='JM'?' active':''}" data-taller="JM">Joan Motorcar</div>
@@ -408,9 +415,15 @@ ${isCeo?`<div class="tabs">
 </div>`;}
 
 function bindDashboard(){
-  document.getElementById('btn-logout')?.addEventListener('click',()=>{S.user=null;S.pin='';S.view='login';render();});
+  document.getElementById('btn-logout')?.addEventListener('click',()=>{clearSession();S.user=null;S.pin='';S.view='login';render();});
+  document.getElementById('btn-refresh')?.addEventListener('click',async()=>{
+    const btn=document.getElementById('btn-refresh');
+    if(btn){btn.classList.add('spin');btn.disabled=true;}
+    if(S.taller==='AMBOS')await loadBoth();else await loadPiezas();
+    if(btn){btn.classList.remove('spin');btn.disabled=false;}
+  });
   document.querySelectorAll('[data-taller]').forEach(el=>{
-    el.addEventListener('click',()=>{S.taller=el.dataset.taller;S.filter='all';if(S.taller==='AMBOS')loadBoth();else loadPiezas();});
+    el.addEventListener('click',()=>{S.taller=el.dataset.taller;S.filter='all';saveSession();if(S.taller==='AMBOS')loadBoth();else loadPiezas();});
   });
   document.querySelectorAll('.kpi[data-filter]').forEach(el=>{
     el.addEventListener('click',()=>{S.filter=el.dataset.filter;updFilters();partialRender();});
@@ -777,7 +790,7 @@ async function doModal(){
   if(S.taller==='AMBOS')loadBoth();else loadPiezas();
 }
 
-render();
+if(loadSession()){render();if(S.taller==='AMBOS')loadBoth();else loadPiezas();}else{render();}
 </script>
 </body>
 </html>
