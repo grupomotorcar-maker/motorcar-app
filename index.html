@@ -192,8 +192,8 @@ const S={view:'dashboard',user:{nombre:'Motorcar',rol:'Admin',nivel:1,taller:'JM
 let toastT=null;
 function showToast(msg,type='neutral'){const el=document.getElementById('toast');if(!el)return;el.className='toast-el toast-'+type;el.textContent=msg;el.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>{el.style.opacity='0';},2800);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-async function api(method,params,ms=20000){const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),ms);try{let r;if(method==='GET')r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params),{cache:'no-store',signal:ctrl.signal});else r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(params),signal:ctrl.signal});clearTimeout(tid);return await r.json();}catch(e){clearTimeout(tid);return{ok:false,error:e.name==='AbortError'?'Servidor lento, reintentando…':e.message};}}
-async function apiPost(params,btn){const msgs=['Guardando…','Procesando…','Un momento…'];let si=0;let t;function tick(){if(btn&&btn.disabled){btn.textContent=msgs[si]||msgs[msgs.length-1];si++;}t=setTimeout(tick,8000);}tick();const res=await api('POST',params,30000);clearTimeout(t);return res;}
+async function api(method,params,ms=20000){const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),ms);try{let r;if(method==='GET')r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params),{cache:'no-store',signal:ctrl.signal});else r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(params),signal:ctrl.signal});clearTimeout(tid);return await r.json();}catch(e){clearTimeout(tid);return{ok:false,error:e.name==='AbortError'?'Servidor ocupado. Espera e inténtalo de nuevo.':e.message};}}
+async function apiPost(params,btn){const msgs=['Guardando…','Procesando…','Un momento…','Casi listo…'];let si=0;let t;function tick(){if(btn&&btn.disabled){btn.textContent=msgs[si]||msgs[msgs.length-1];si++;}t=setTimeout(tick,8000);}tick();const res=await api('POST',params,50000);clearTimeout(t);return res;}
 function warmGAS(){api('GET',{action:'login',codigo:'__warm__'},8000).catch(()=>{});}
 let _kaTimer=null;function startKeepalive(){clearInterval(_kaTimer);warmGAS();_kaTimer=setInterval(warmGAS,90000);}
 async function loadPiezas(force){const cKey='mc_p_'+S.taller;try{const c=localStorage.getItem(cKey);if(c&&!force){S.piezas=JSON.parse(c);partialRender();}}catch(e){}const hadCache=S.piezas.length>0;if(!hadCache){S.loading=true;partialRender();}const res=await api('GET',{action:'getpiezas',taller:S.taller});S.loading=false;if(res.ok){S.piezas=(res.piezas||[]).map(p=>({...p,_taller:S.taller}));try{localStorage.setItem(cKey,JSON.stringify(S.piezas));}catch(e){}}else if(!hadCache)showToast('Error cargando datos','err');partialRender();}
@@ -376,7 +376,7 @@ function bindUbicar(){
     const btn=document.getElementById('btn-ub');btn.textContent='Guardando…';btn.disabled=true;
     const res=await apiPost({action:'ubicar',_row:S.pieza._row,taller:pTaller(S.pieza),estanteria,balda:bal,obs_almacen:obs,usuario:S.user.nombre,pvp,neto},btn);
     if(res.ok){showToast('✓ Pieza ubicada','ok');S.view='dashboard';render();loadPiezas();}
-    else{showToast('❌ '+(res.error||'Error al ubicar'),'err');btn.textContent='✓ Confirmar ubicación';btn.disabled=false;}
+    else{showToast('❌ '+(res.error||'Error al ubicar'),'err');let cd=20;btn.disabled=true;const cdT=setInterval(()=>{cd--;btn.textContent=cd>0?'Espera '+cd+'s…':'✔️ Confirmar ubicación';if(cd<=0){btn.disabled=false;clearInterval(cdT);}},1000);}
   });
 }
 
